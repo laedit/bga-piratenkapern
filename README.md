@@ -1,0 +1,1 @@
+Script for Piraten Kapern (Mille Sabords!) board game on BoardGameArena.
