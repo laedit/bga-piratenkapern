@@ -1,11 +1,25 @@
 // Type definitions for BoardGameArena Sandbox API
 // Definitions by: Jérémie Bertrand https://laedit.net
 
+type TranslatedString = string;
+
 /**
  * Translation marker
  * @param message Message to translate
  */
-declare function _(message: string): string;
+declare function _(message: string): TranslatedString;
+
+type State = {
+    onState?: string,
+    description?: TranslatedString,
+    descriptionmyturn?: TranslatedString,
+    possibleactions?: string[],
+    transitions: { [key: string]: number }
+}
+
+type States = {
+    [id: number]: State
+}
 
 type Style = "SELECTED" | "LIGHT" | "LIGHTBACKGROUND" | "REDSELECTED" | "CLICKABLE" | "ROUNDED" | "CLICKABLE_ROUNDED" | string;
 
@@ -73,7 +87,7 @@ declare interface BoardGameArena {
      * This is the function to use when a player is doing something against game rules.
      * @param message Message that will be displayed to this player as a "red message", so he/she can understand the rule.
      */
-    cancel(message: string): void
+    cancel(message: TranslatedString): void
 
     /**
      * This is the function to use when some unexpected error happens in your script.
@@ -87,7 +101,7 @@ declare interface BoardGameArena {
      * @param message Message to log
      * @param parameters Message parameters
      */
-    log(message: string, parameters?: object): void
+    log(message: TranslatedString, parameters?: object): void
 
     /**
      * Display a "speech bubble", attached to the specified target, containing the specified text.
@@ -98,7 +112,7 @@ declare interface BoardGameArena {
      * @param duration how long to show the speech bubble in milliseconds (default : 3000)
      * @param size size of the text in percent (default: 100)
      */
-    speechBubble(target: number, text: string, args?: object, delay?: number, duration?: number, size?: number): void
+    speechBubble(target: number, text: TranslatedString, args?: object, delay?: number, duration?: number, size?: number): void
 
     /**
      * Display an animated temporary "score number", attached to the specified target.
