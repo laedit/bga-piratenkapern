@@ -25,7 +25,7 @@ type Style = "SELECTED" | "LIGHT" | "LIGHTBACKGROUND" | "REDSELECTED" | "CLICKAB
 
 type Visibility = 'everyone' | string; // FIXME add other and remove string and is there a way to check 'player'+color like 'player'+bga.getActivePlayerColor()?
 
-type ZoneArrangement = 'stacked' | 'spreaded' | string; // FIXME add other and remove string
+type ZoneArrangement = 'stacked' | 'spreaded' | 'unique' | 'free';
 
 type ElementSelector = {
     id?: number,
