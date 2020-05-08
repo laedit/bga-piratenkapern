@@ -1,53 +1,4 @@
 // Piraten Kapern script
-function states() {
-    return {
-
-        // Init game
-        100: {
-            onState: 'postSetup',
-            transitions: { done: 200 }
-        },
-
-        // Player's first roll on turn
-        200: {
-            description: _('${actplayer} must roll all dice'),
-            descriptionmyturn: _('${you} must roll all dice'),
-            possibleactions: ['firstRoll'],
-            transitions: { skullIsland: 201, nextRoll: 202, nextPlayer: 200 }
-        },
-
-        // skull island
-        201: {
-            description: _('${actplayer} is on the Island of Skull and must roll dice'),
-            descriptionmyturn: _('${you} are on the Island of Skull and must roll dice'),
-            possibleactions: ['rollSkullIslandDice'],
-            transitions: { nextPlayer: 200 }
-        },
-
-        // Normal roll
-        202: {
-            description: _('${actplayer} must roll dice or stop'),
-            descriptionmyturn: _('${you} must roll dice or stop'),
-            possibleactions: ['rollDice'],
-            transitions: { nextPlayer: 200 }
-        },
-
-        // last round?
-        // Or Check if current player have 6000+ points => set custom properties HaveStartedLastRound
-        // Check if current player have HaveStartedLastRound = true if yes check if anyone have 6000+ points
-        // The player with the higher score win
-
-    };
-}
-
-function postSetup() {
-    // FIXME useless?
-
-    showLabelsToNextPlayer();
-
-    bga.nextState('done');
-}
-
 function onDieClicked(die_id: number) {
     // Cancel event propagation
     bga.stopEvent();
@@ -99,6 +50,10 @@ function firstRoll() {
     else if (skullDiceCount >= 4) {
         // the player goes to the island of skull
         bga.log(_("${player_name} goes to the <b>Island of Skull</b>"));
+        //FIXME use a transitionToSkullIsland function?
+        setProperties(bga.getElement({ name: 'or' }), { inlineStyle: 'display: none;' });
+        setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: 'display: none;' });
+        // FIXME pareil pour les transitions vers nextPlayer
         bga.nextState('skullIsland');
     }
     else {
@@ -158,10 +113,13 @@ function skullIslandRoll() {
                     newScore = 0;
                 }
                 bga.setScore(color, newScore);
-                bga.log(_(`${player.name} stopped and loose <b>${scoreToSubstract}</b> points`));
+                bga.log(_(`${player.name} loose <b>${scoreToSubstract}</b> points`));
             }
         }
 
+        //FIXME use a transitionFromSkullIsland function?
+        setProperties(bga.getElement({ name: 'or' }), { inlineStyle: 'display: block;' });
+        setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: 'display: block;' });
         endPlayerTurn();
     }
 }
@@ -259,112 +217,8 @@ function getSetScore(setCount: number): number {
     }
 }
 
-/*** Utility functions ***/
-const WinningScore = 6000;
-
-function updateGameProgression() {
-    // Get player score max
-    let maxScore = Math.max(...Object.keys(bga.getPlayers()).map(color => bga.getScore(color)));
-
-    // If score < winning score
-    if (maxScore < WinningScore) {
-        bga.setGameProgression(Math.round(maxScore / WinningScore * 100));
-    }
-    // Else we are (probably?) on the last turn
-    else {
-        bga.setGameProgression(99);
-    }
-}
-
-function showLabelsToNextPlayer() {
-    var props: ElementsProperties = [];
-    bga.getElementsArray({ tag: 'LABEL' }).forEach(labelId => props[labelId] = { visible: 'player' + bga.getActivePlayerColor() });
-    //bga.setProperties(props);
-    // FIXME not refreshed dynamically
-}
-
-function endPlayerTurnBecauseSkulls() {
-    bga.pause(2000); // pause during 2 seconds
-    bga.log(_("${player_name} got 3 <b>skulls</b> and doesn't win any points"));
-    endPlayerTurn();
-}
-
-function endPlayerTurn() {
-    // remove dice selection
-    bga.removeStyle(bga.getElements({ tag: 'sbstyle_selected' }), 'selected');
-
-    // Remove first card on deck and move to hidden zone
-    bga.moveTo(getFirstCardOnDeck(), bga.getElement({ name: 'Discard' }));
-
-    // If the deck is empty
-    if (bga.getElementsArray({ parent: bga.getElement({ name: 'Deck' }) }).length === 0) {
-        bga.pause(1000);
-        // Shuffle the discard pile
-        bga.shuffle(bga.getElement({ name: 'Discard' }));
-        bga.pause(1000);
-        // And move the cards back to the deck
-        bga.moveTo(bga.getElementsArray({ tag: 'CARD' }), bga.getElement({ name: 'Deck' }));
-    }
-
-    // Hide dice
-    bga.moveTo(bga.getElementsArray({ tag: 'DICE' }), bga.getElement({ name: 'BagOfDice' }));
-
-    // Update progression
-    updateGameProgression();
-
-    bga.nextPlayer();
-
-    // Show Roll or Stop labels to next player
-    showLabelsToNextPlayer();
-
-    bga.nextState('nextPlayer');
-}
-
-function getSkullDiceCount() {
-    return getDiceCount(DieValues.Skull);
-}
-
-function getSkullsCount() {
-    let skullsCount = getSkullDiceCount();
-    if (bga.hasTag(getFirstCardOnDeck(), 'SKULLS')) {
-        skullsCount += Number(getFirstCardOnDeck('c_skulls'));
-        bga.trace(`Total skulls: ${skullsCount}`);
-    }
-    return skullsCount;
-}
-
-function getDiceCount(dieValueSearched: string) {
-    return bga.getElementsArray({ tag: 'DICE' }, 'value').filter(dieValue => dieValue === dieValueSearched).length;
-}
-
-function getFirstCardOnDeck(property?: string) {
-    if (property === undefined) {
-        property = 'id';
-    }
-    return bga.getElementsArray({ parent: bga.getElement({ name: 'Deck' }) }, property).reverse()[0];
-}
-
-function logDiceResult() {
-    bga.log(_("${player_name} rolled ${dice}"), { dice: bga.getElementsArray({ tag: 'DICE' }, 'value').map(dieValueToText).join(", ") });
-}
-
-function dieValueToText(dieValue: string): string {
-    switch (dieValue) {
-        case DieValues.Parrot: return _("Parrot");
-        case DieValues.Coin: return _("Coin");
-        case DieValues.Diamond: return _("Diamond");
-        case DieValues.Skull: return _("Skull");
-        case DieValues.Monkey: return _("Monkey");
-        case DieValues.Sabers: return _("Sabers");
-        default: bga.error(`Die value unknown: '${dieValue}'`);
-    }
-}
-
-const DieValues = {
-    Parrot: "1",
-    Coin: "2",
-    Diamond: "3",
-    Skull: "4",
-    Monkey: "5",
-    Sabers: "6"
+type GameState = {
+    onDieClicked(die_id: number): void
+    onRollClicked(): void
+    onStopClicked(): void
 }
