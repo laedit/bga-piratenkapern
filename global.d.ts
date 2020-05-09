@@ -9,16 +9,18 @@ type TranslatedString = string;
  */
 declare function _(message: string): TranslatedString;
 
-type State = {
+type Transitions = { [key: string]: number }
+
+type State<TAction extends string = string> = {
     onState?: string,
     description?: TranslatedString,
     descriptionmyturn?: TranslatedString,
-    possibleactions?: string[],
-    transitions: { [key: string]: number }
+    possibleactions?: TAction[],
+    transitions: Transitions
 }
 
-type States = {
-    [id: number]: State
+type States<TAction extends string = string> = {
+    [id: number]: State<TAction>
 }
 
 type Style = "SELECTED" | "LIGHT" | "LIGHTBACKGROUND" | "REDSELECTED" | "CLICKABLE" | "ROUNDED" | "CLICKABLE_ROUNDED" | string;
