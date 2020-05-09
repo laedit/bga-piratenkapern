@@ -3,35 +3,34 @@ function onDieClicked(die_id: number) {
     // Cancel event propagation
     bga.stopEvent();
 
-    if (bga.isActionPossible('rollDice')) {
-        if (bga.getElement({ id: die_id }, 'value') === DieValues.Skull) // if selected die is a skull
-        { // TODO add exception for 1 die with Guardian card
-            bga.cancel(_("Skull die can't be rolled again"));
-        }
-        else if (bga.hasTag(die_id, 'sbstyle_selected')) {
-            bga.removeStyle(die_id, 'selected');
-        }
-        else if (bga.getElementsArray({ tag: 'sbstyle_selected' }).length === 7) {
-            bga.cancel(_("You can't roll all dice"));
-        }
-        else {
-            bga.addStyle(die_id, 'SELECTED');
-        }
+    checkAction("SelectDie");
+
+    if (bga.getElement({ id: die_id }, 'value') === DieValues.Skull) // if selected die is a skull
+    { // TODO add exception for 1 die with Guardian card
+        bga.cancel(_("Skull die can't be rolled again"));
     }
-    else if (bga.isActionPossible('rollSkullIslandDice')) {
-        bga.cancel('You must roll all dice which are not a Skull');
+    else if (bga.hasTag(die_id, 'sbstyle_selected')) {
+        bga.removeStyle(die_id, 'selected');
+    }
+    else if (bga.getElementsArray({ tag: 'sbstyle_selected' }).length === 7) {
+        bga.cancel(_("You can't roll all dice"));
+    }
+    else {
+        bga.addStyle(die_id, 'SELECTED');
     }
 }
 
 function onRollClicked() {
-    if (bga.isActionPossible('firstRoll')) {
+    checkAction("RollDice");
+
+    if (bga.getElementsArray({ parent: bga.getElement({ name: 'RolledDicesZone' }) }).length === 0) {
         firstRoll();
     }
-    else if (bga.isActionPossible('rollDice')) {
-        normalRoll();
-    }
-    else if (bga.isActionPossible('rollSkullIslandDice')) {
+    else if (getSkullsCount() >= 4) {
         skullIslandRoll();
+    }
+    else {
+        normalRoll();
     }
 }
 
@@ -49,15 +48,10 @@ function firstRoll() {
     // If there is 4+ skulls
     else if (skullDiceCount >= 4) {
         // the player goes to the island of skull
-        bga.log(_("${player_name} goes to the <b>Island of Skull</b>"));
-        //FIXME use a transitionToSkullIsland function?
-        setProperties(bga.getElement({ name: 'or' }), { inlineStyle: 'display: none;' });
-        setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: 'display: none;' });
-        // FIXME pareil pour les transitions vers nextPlayer
-        bga.nextState('skullIsland');
+        transitionToSkullIsland();
     }
     else {
-        bga.nextState('nextRoll');
+        transitionToNextRoll();
     }
 }
 
@@ -125,28 +119,19 @@ function skullIslandRoll() {
 }
 
 function onStopClicked() {
-    if (bga.isActionPossible('firstRoll')) {
-        bga.cancel(_("You cannot stop until you have rolled the dice at least once"));
-    }
-    else if (bga.isActionPossible('rollDice')) {
-        // Calculate points
-        let playerScore = calculateScore();
+    checkAction("StopTurn");
 
-        let playerColor = bga.getCurrentPlayerColor();
-        // Display score
-        bga.displayScoring(bga.getElement({ name: 'RolledDicesZone' }), playerColor, playerScore);
-        // Increase score
-        bga.incScore(playerColor, playerScore);
-        bga.log(_("${player_name} stopped and win <b>" + playerScore + "</b> points"));
+    // Calculate points
+    let playerScore = calculateScore();
 
-        endPlayerTurn();
-    }
-    else if (bga.isActionPossible('rollSkullIslandDice')) {
-        bga.cancel(_("You cannot stop when you are on the Island of Skull..."));
-    }
-    else {
-        bga.error('No actions possible...');
-    }
+    let playerColor = bga.getCurrentPlayerColor();
+    // Display score
+    bga.displayScoring(bga.getElement({ name: 'RolledDicesZone' }), playerColor, playerScore);
+    // Increase score
+    bga.incScore(playerColor, playerScore);
+    bga.log(_("${player_name} stopped and win <b>" + playerScore + "</b> points"));
+
+    endPlayerTurn();
 }
 
 function calculateScore(): number {
@@ -215,10 +200,4 @@ function getSetScore(setCount: number): number {
 
         default: bga.error(`This set value isn't handled '${setCount}'`);
     }
-}
-
-type GameState = {
-    onDieClicked(die_id: number): void
-    onRollClicked(): void
-    onStopClicked(): void
 }

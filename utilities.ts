@@ -14,9 +14,19 @@ function updateGameProgression() {
     }
 }
 
+/**
+ * Show Roll or Stop labels to next player
+ */
 function showLabelsToNextPlayer() {
     // FIXME not refreshed dynamically
     //bga.getElementsArray({ tag: 'LABEL' }).forEach(labelId => setProperties(labelId, { visible: 'player' + bga.getActivePlayerColor() }));
+}
+
+type Display = "none" | "block";
+
+function changeOrStopDisplay(display: Display) {
+    setProperties(bga.getElement({ name: 'or' }), { inlineStyle: `display: ${display};` });
+    setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: `display: ${display};` });
 }
 
 function endPlayerTurnBecauseSkulls() {
@@ -48,12 +58,7 @@ function endPlayerTurn() {
     // Update progression
     updateGameProgression();
 
-    bga.nextPlayer();
-
-    // Show Roll or Stop labels to next player
-    showLabelsToNextPlayer();
-
-    bga.nextState('nextPlayer');
+    transitionToNextPlayer();
 }
 
 function getSkullDiceCount() {
