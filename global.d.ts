@@ -25,7 +25,7 @@ type States<TAction extends string = string> = {
 
 type Style = "SELECTED" | "LIGHT" | "LIGHTBACKGROUND" | "REDSELECTED" | "CLICKABLE" | "ROUNDED" | "CLICKABLE_ROUNDED" | string;
 
-type Visibility = 'everyone' | string; // FIXME add other and remove string and is there a way to check 'player'+color like 'player'+bga.getActivePlayerColor()?
+type Visibility = 'everyone' | 'hideinside' | string; // FIXME add other and remove string and is there a way to check 'player'+color like 'player'+bga.getActivePlayerColor()?
 
 type ZoneArrangement = 'stacked' | 'spreaded' | 'unique' | 'free';
 
