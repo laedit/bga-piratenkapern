@@ -1,4 +1,5 @@
 const WinningScore = 6000;
+const SelectedTag = 'sbstyle_selected';
 
 function updateGameProgression() {
     // Get player score max
@@ -29,6 +30,18 @@ function changeOrStopDisplay(display: Display) {
     setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: `display: ${display};` });
 }
 
+function isSelected(id: number): boolean {
+    return bga.hasTag(id, SelectedTag);
+}
+
+function getSelected() {
+    return bga.getElementsArray({ tag: SelectedTag });
+}
+
+function deselectAll() {
+    bga.removeStyle(bga.getElements({ tag: SelectedTag }), 'selected');
+}
+
 function endPlayerTurnBecauseSkulls() {
     bga.pause(2000); // pause during 2 seconds
     bga.log(_("${player_name} got 3 <b>skulls</b> and doesn't win any points"));
@@ -37,7 +50,7 @@ function endPlayerTurnBecauseSkulls() {
 
 function endPlayerTurn() {
     // remove dice selection
-    bga.removeStyle(bga.getElements({ tag: 'sbstyle_selected' }), 'selected');
+    deselectAll();
 
     // Remove first card on deck and move to hidden zone
     bga.moveTo(getFirstCardOnDeck(), bga.getElement({ name: 'Discard' }));

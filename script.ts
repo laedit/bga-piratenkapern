@@ -9,10 +9,10 @@ function onDieClicked(die_id: number) {
     { // TODO add exception for 1 die with Guardian card
         bga.cancel(_("Skull die can't be rolled again"));
     }
-    else if (bga.hasTag(die_id, 'sbstyle_selected')) {
+    else if (isSelected(die_id)) {
         bga.removeStyle(die_id, 'selected');
     }
-    else if (bga.getElementsArray({ tag: 'sbstyle_selected' }).length === 7) {
+    else if (getSelected().length === 7) {
         bga.cancel(_("You can't roll all dice"));
     }
     else {
@@ -56,7 +56,7 @@ function firstRoll() {
 }
 
 function normalRoll() {
-    let selectedDice = bga.getElementsArray({ tag: 'sbstyle_selected' });
+    let selectedDice = getSelected();
 
     if (selectedDice.length < 2) {
         bga.cancel(_("You must select at least two dice to roll"));
@@ -67,7 +67,7 @@ function normalRoll() {
     else {
         bga.roll(selectedDice);
 
-        bga.removeStyle(bga.getElements({ tag: 'sbstyle_selected' }), 'selected');
+        deselectAll();
         logDiceResult();
 
         let skullDiceCount = getSkullsCount();
