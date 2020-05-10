@@ -1,4 +1,5 @@
 const WinningScore = 6000;
+const SelectedStyle = 'selected';
 const SelectedTag = 'sbstyle_selected';
 
 function updateGameProgression() {
@@ -39,7 +40,15 @@ function getSelected() {
 }
 
 function deselectAll() {
-    bga.removeStyle(bga.getElements({ tag: SelectedTag }), 'selected');
+    bga.removeStyle(bga.getElements({ tag: SelectedTag }), SelectedStyle);
+}
+
+function deselect(id: number) {
+    bga.removeStyle(id, SelectedStyle);
+}
+
+function select(id: number) {
+    bga.addStyle(id, SelectedStyle);
 }
 
 function endPlayerTurnBecauseSkulls() {

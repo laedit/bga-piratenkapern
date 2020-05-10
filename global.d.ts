@@ -429,14 +429,14 @@ declare interface BoardGameArena {
      * @param elementId if of the element
      * @param style style
      */
-    removeStyle(elementId: number, style: string): void
+    removeStyle(elementId: number, style: Style): void
 
     /**
      * Removes this style from the element with this id. 
      * @param elementsIds ids of the elements
      * @param style style
      */
-    removeStyle(elementsIds: { [key: number]: number }, style: string): void
+    removeStyle(elementsIds: { [key: number]: number }, style: Style): void
 
     /**
      * This function allows to directly update properties of an object, and to manage custom properties if needed (custom properties must start with prefix "c_").

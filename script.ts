@@ -10,13 +10,13 @@ function onDieClicked(die_id: number) {
         bga.cancel(_("Skull die can't be rolled again"));
     }
     else if (isSelected(die_id)) {
-        bga.removeStyle(die_id, 'selected');
+        deselect(die_id);
     }
     else if (getSelected().length === 7) {
         bga.cancel(_("You can't roll all dice"));
     }
     else {
-        bga.addStyle(die_id, 'SELECTED');
+        select(die_id);
     }
 }
 
