@@ -5,7 +5,7 @@ function onDieClicked(die_id: number) {
 
     checkAction("SelectDie");
 
-    if (bga.getElement({ id: die_id }, 'value') === DieValues.Skull) // if selected die is a skull
+    if (bga.getElement({ id: die_id }, 'value') === DieFaces.Skull.value) // if selected die is a skull
     { // TODO add exception for 1 die with Guardian card
         bga.cancel(_("Skull die can't be rolled again"));
     }
@@ -81,13 +81,13 @@ function normalRoll() {
 
 function skullIslandRoll() {
     // Reroll all dice which are not skull
-    let selectedDice = bga.getElementsArray({ tag: 'DICE' }, ['id', 'value']).filter(die => die.value !== DieValues.Skull).map(die => die.id);
+    let selectedDice = bga.getElementsArray({ tag: 'DICE' }, ['id', 'value']).filter(die => die.value !== DieFaces.Skull.value).map(die => die.id);
     bga.roll(selectedDice);
 
     logDiceResult();
 
     // As long as each roll got at least 1 skull, the player keep rolling
-    let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter((dieValue: string) => dieValue === DieValues.Skull).length;
+    let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter((dieValue: string) => dieValue === DieFaces.Skull.value).length;
     bga.trace({ 'skulls count': skullDiceCount });
 
     if (skullDiceCount === 0) {
@@ -138,11 +138,11 @@ function calculateScore(): number {
     // There are 3 ways to score points:
 
     // 1. Sets of identical objects:
-    let coinsCount = getDiceCount(DieValues.Coin);
-    let diamondsCount = getDiceCount(DieValues.Diamond);
-    let parrotsCount = getDiceCount(DieValues.Parrot);
-    let monkeysCount = getDiceCount(DieValues.Monkey);
-    let sabersCount = getDiceCount(DieValues.Sabers);
+    let coinsCount = getDiceCount(DieFaces.Coin);
+    let diamondsCount = getDiceCount(DieFaces.Diamond);
+    let parrotsCount = getDiceCount(DieFaces.Parrot);
+    let monkeysCount = getDiceCount(DieFaces.Monkey);
+    let sabersCount = getDiceCount(DieFaces.Sabers);
 
     let setsScore = getSetScore(parrotsCount);
     setsScore += getSetScore(monkeysCount);

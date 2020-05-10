@@ -84,7 +84,7 @@ function endPlayerTurn() {
 }
 
 function getSkullDiceCount() {
-    return getDiceCount(DieValues.Skull);
+    return getDiceCount(DieFaces.Skull);
 }
 
 function getSkullsCount() {
@@ -96,8 +96,8 @@ function getSkullsCount() {
     return skullsCount;
 }
 
-function getDiceCount(dieValueSearched: string) {
-    return bga.getElementsArray({ tag: 'DICE' }, 'value').filter(dieValue => dieValue === dieValueSearched).length;
+function getDiceCount(dieFaceSearched: DieFace) {
+    return bga.getElementsArray({ tag: 'DICE' }, 'value').filter(dieValue => dieValue === dieFaceSearched.value).length;
 }
 
 function getFirstCardOnDeck(property?: string) {
@@ -114,26 +114,21 @@ function setProperties(elementId: number, properties: ElementProperties) {
 }
 
 function logDiceResult() {
-    bga.log(_("${player_name} rolled ${dice}"), { dice: bga.getElementsArray({ tag: 'DICE' }, 'value').map(dieValueToText).join(", ") });
+    bga.log(_("${player_name} rolled ${dice}"), {
+        dice: bga.getElementsArray({ tag: 'DICE' }, 'value')
+            .map((value: DieValue) => Object.values(DieFaces).find((dieFace: DieFace) => dieFace.value === value)).join(", ")
+    });
 }
 
-function dieValueToText(dieValue: string): string {
-    switch (dieValue) {
-        case DieValues.Parrot: return _("Parrot");
-        case DieValues.Coin: return _("Coin");
-        case DieValues.Diamond: return _("Diamond");
-        case DieValues.Skull: return _("Skull");
-        case DieValues.Monkey: return _("Monkey");
-        case DieValues.Sabers: return _("Sabers");
-        default: bga.error(`Die value unknown: '${dieValue}'`);
-    }
-}
+type DieName = "Parrot" | "Coin" | "Diamond" | "Skull" | "Monkey" | "Sabers";
+type DieValue = "1" | "2" | "3" | "4" | "5" | "6";
+type DieFace = { name: DieName, value: DieValue };
 
-const DieValues = {
-    Parrot: "1",
-    Coin: "2",
-    Diamond: "3",
-    Skull: "4",
-    Monkey: "5",
-    Sabers: "6"
+const DieFaces: { [P in DieName]: DieFace } = {
+    Parrot: { name: "Parrot", value: "1" },
+    Coin: { name: "Coin", value: "2" },
+    Diamond: { name: "Diamond", value: "3" },
+    Skull: { name: "Skull", value: "4" },
+    Monkey: { name: "Monkey", value: "5" },
+    Sabers: { name: "Sabers", value: "6" }
 }
