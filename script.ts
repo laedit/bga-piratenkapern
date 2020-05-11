@@ -23,7 +23,7 @@ function onDieClicked(die_id: number) {
 function onRollClicked() {
     checkAction("RollDice");
 
-    if (bga.getElementsArray({ parent: bga.getElement({ name: 'RolledDicesZone' }) }).length === 0) {
+    if (bga.getElementsArray({ parent: bga.getElement({ name: 'RolledDiceZone' }) }).length === 0) {
         firstRoll();
     }
     else if (getSkullsCount() >= 4) {
@@ -37,7 +37,7 @@ function onRollClicked() {
 function firstRoll() {
     bga.roll(bga.getElementsArray({ tag: 'DICE' }));
     // Show dice
-    bga.moveTo(bga.getElementsArray({ tag: 'DICE' }), bga.getElement({ name: 'RolledDicesZone' }));
+    bga.moveTo(bga.getElementsArray({ tag: 'DICE' }), bga.getElement({ name: 'RolledDiceZone' }));
     logDiceResult();
 
     let skullDiceCount = getSkullsCount();
@@ -126,7 +126,7 @@ function onStopClicked() {
 
     let playerColor = bga.getCurrentPlayerColor();
     // Display score
-    bga.displayScoring(bga.getElement({ name: 'RolledDicesZone' }), playerColor, playerScore);
+    bga.displayScoring(bga.getElement({ name: 'RolledDiceZone' }), playerColor, playerScore);
     // Increase score
     bga.incScore(playerColor, playerScore);
     bga.log(_("${player_name} stopped and win <b>" + playerScore + "</b> points"));
