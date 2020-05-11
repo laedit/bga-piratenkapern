@@ -101,11 +101,6 @@ function skullIslandRoll() {
             let player = players[color];
             if (color !== currentPlayerColor) {
                 let newScore = bga.getScore(color) - scoreToSubstract;
-
-                // if score < 0 => score = 0
-                if (newScore < 0) {
-                    newScore = 0;
-                }
                 bga.setScore(color, newScore);
                 bga.log(_(`${player.name} loose <b>${scoreToSubstract}</b> points`));
             }
