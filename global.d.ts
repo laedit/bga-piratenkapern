@@ -1,7 +1,9 @@
 // Type definitions for BoardGameArena Sandbox API
 // Definitions by: Jérémie Bertrand https://laedit.net
 
-type TranslatedString = string;
+type TranslatedString = {
+    _: never; // force the use of TranslatedString and not string for functions using it
+};
 
 /**
  * Translation marker
