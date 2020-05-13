@@ -39,10 +39,11 @@ function firstRoll() {
     // Show dice
     bga.moveTo(bga.getElementsArray({ tag: 'DICE' }), bga.getElement({ name: 'RolledDiceZone' }));
     logDiceResult();
+    moveSkullDiceToSkullZone();
 
     let skullDiceCount = getSkullsCount();
     // If there is 3 skulls
-    if (skullDiceCount === 3) {
+    if (skullDiceCount === 3) { // FIXME carte magicienne : le joueur pourrait vouloir relancer le troisième dé crâne
         endPlayerTurnBecauseSkulls();
     }
     // If there is 4+ skulls
@@ -69,29 +70,34 @@ function normalRoll() {
 
         deselectAll();
         logDiceResult();
+        moveSkullDiceToSkullZone();
 
         let skullDiceCount = getSkullsCount();
         // If there is 3+ skulls
         bga.trace({ 'skulls count': skullDiceCount });
-        if (skullDiceCount >= 3) {
+        if (skullDiceCount >= 3) { // FIXME carte magicienne : le joueur pourrait vouloir relancer le troisième dé crâne
             endPlayerTurnBecauseSkulls();
         }
     }
 }
-
+// FIXME after each roll => move skulls to SkullDiceZone
 function skullIslandRoll() {
     // Reroll all dice which are not skull
-    let selectedDice = bga.getElementsArray({ tag: 'DICE' }, ['id', 'value']).filter(die => die.value !== DieFaces.Skull.value).map(die => die.id);
+    let selectedDice = getDiceNot(DieFaces.Skull);
     bga.roll(selectedDice);
 
     logDiceResult();
+    moveSkullDiceToSkullZone();
 
-    // As long as each roll got at least 1 skull, the player keep rolling
     let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter((dieValue: string) => dieValue === DieFaces.Skull.value).length;
-    bga.trace({ 'skulls count': skullDiceCount });
+    bga.trace({ 'Skulls count': skullDiceCount });
 
-    if (skullDiceCount === 0) {
+    // As long as each roll got at least 1 skull
+    // and there is at least two dice to roll, the player keep rolling
+    if (skullDiceCount === 0 || getSkullDiceCount() === 7) {
+        bga.log(_("${player_name} haven't roll new skull(s) and return from the <b>Island of Skull</b>"));
         // Else end player turn and remove 100 * skull for each player except current
+        // FIXME double it if pirate card
         let scoreToSubstract = getSkullsCount() * 100;
 
         let currentPlayerColor = bga.getCurrentPlayerColor();
@@ -105,10 +111,7 @@ function skullIslandRoll() {
                 bga.log(_(`${player.name} loose <b>${scoreToSubstract}</b> points`));
             }
         }
-
-        //FIXME use a transitionFromSkullIsland function?
-        setProperties(bga.getElement({ name: 'or' }), { inlineStyle: 'display: block;' });
-        setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: 'display: block;' });
+        bga.pause(1000);
         endPlayerTurn();
     }
 }
@@ -159,9 +162,9 @@ function calculateScore(): number {
     // 3.Full Chest: A player who generates points with all eight dice receives a bonus of 500 points in addition to the score he made.
     // => if there is series of 2 or 1 dice which are not diamond or gold => not full chest
     if (getSkullDiceCount() === 0
-        && (parrotsCount === 0 || parrotsCount > 2)
-        && (monkeysCount === 0 || monkeysCount > 2)
-        && (sabersCount === 0 || sabersCount > 2)
+        && (parrotsCount === 0 || parrotsCount > 2) //FIXME include animals card
+        && (monkeysCount === 0 || monkeysCount > 2) //FIXME include animals card
+        && (sabersCount === 0 || sabersCount > 2) //FIXME include pirate boat card
     ) {
         totalScore += 500;
         bga.trace('Full chest!');

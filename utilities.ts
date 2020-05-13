@@ -83,6 +83,18 @@ function endPlayerTurn() {
     transitionToNextPlayer();
 }
 
+function getDice(dieFaceSearched: DieFace) {
+    return bga.getElementsArray({ tag: 'DICE' }, ['id', 'value']).filter(die => die.value === dieFaceSearched.value).map(die => die.id)
+}
+
+function getDiceNot(dieFaceSearched: DieFace) {
+    return bga.getElementsArray({ tag: 'DICE' }, ['id', 'value']).filter(die => die.value !== dieFaceSearched.value).map(die => die.id)
+}
+
+function getDiceCount(dieFaceSearched: DieFace) {
+    return getDice(dieFaceSearched).length;
+}
+
 function getSkullDiceCount() {
     return getDiceCount(DieFaces.Skull);
 }
@@ -96,8 +108,8 @@ function getSkullsCount() {
     return skullsCount;
 }
 
-function getDiceCount(dieFaceSearched: DieFace) {
-    return bga.getElementsArray({ tag: 'DICE' }, 'value').filter(dieValue => dieValue === dieFaceSearched.value).length;
+function moveSkullDiceToSkullZone() {
+    bga.moveTo(getDice(DieFaces.Skull), bga.getElement({ name: 'SkullDiceZone' }));
 }
 
 function getFirstCardOnDeck(property?: string) {
@@ -116,7 +128,7 @@ function setProperties(elementId: number, properties: ElementProperties) {
 function logDiceResult() {
     bga.log(_("${player_name} rolled ${dice}"), {
         dice: bga.getElementsArray({ tag: 'DICE' }, 'value')
-            .map((value: DieValue) => Object.values(DieFaces).find((dieFace: DieFace) => dieFace.value === value)).join(", ")
+            .map((value: DieValue) => Object.values(DieFaces).find((dieFace: DieFace) => dieFace.value === value)?.name).join(", ")
     });
 }
 
