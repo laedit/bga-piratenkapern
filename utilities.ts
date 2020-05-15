@@ -1,6 +1,4 @@
 const WinningScore = 6000;
-const SelectedStyle = 'selected';
-const SelectedTag = 'sbstyle_selected';
 
 function updateGameProgression() {
     // Get player score max
@@ -21,7 +19,7 @@ function updateGameProgression() {
  */
 function showLabelsToNextPlayer() {
     // FIXME not refreshed dynamically
-    //bga.getElementsArray({ tag: 'LABEL' }).forEach(labelId => setProperties(labelId, { visible: 'player' + bga.getActivePlayerColor() }));
+    //bga.getElementsArray({ tag: 'LABEL' }).forEach(labelId => showOnlyToPlayer(labelId, bga.getActivePlayerColor()));
 }
 
 type Display = "none" | "block";
@@ -29,26 +27,6 @@ type Display = "none" | "block";
 function changeOrStopDisplay(display: Display) {
     setProperties(bga.getElement({ name: 'or' }), { inlineStyle: `display: ${display};` });
     setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: `display: ${display};` });
-}
-
-function isSelected(id: number): boolean {
-    return bga.hasTag(id, SelectedTag);
-}
-
-function getSelected() {
-    return bga.getElementsArray({ tag: SelectedTag });
-}
-
-function deselectAll() {
-    bga.removeStyle(bga.getElements({ tag: SelectedTag }), SelectedStyle);
-}
-
-function deselect(id: number) {
-    bga.removeStyle(id, SelectedStyle);
-}
-
-function select(id: number) {
-    bga.addStyle(id, SelectedStyle);
 }
 
 function endPlayerTurnBecauseSkulls() {
@@ -117,12 +95,6 @@ function getFirstCardOnDeck(property?: string) {
         property = 'id';
     }
     return bga.getElementsArray({ parent: bga.getElement({ name: 'Deck' }) }, property).reverse()[0];
-}
-
-function setProperties(elementId: number, properties: ElementProperties) {
-    var props: ElementsProperties = [];
-    props[elementId] = properties;
-    bga.setProperties(props);
 }
 
 function logDiceResult() {

@@ -27,9 +27,11 @@ type States<TAction extends string = string> = {
 
 type Style = "SELECTED" | "LIGHT" | "LIGHTBACKGROUND" | "REDSELECTED" | "CLICKABLE" | "ROUNDED" | "CLICKABLE_ROUNDED" | string;
 
-type Visibility = 'everyone' | 'hideinside' | string; // FIXME add other and remove string and is there a way to check 'player'+color like 'player'+bga.getActivePlayerColor()?
+type Visibility = string & { _type: "Visibility" };
 
 type ZoneArrangement = 'stacked' | 'spreaded' | 'unique' | 'free';
+
+type Color = string & { _type?: "Color" };
 
 type ElementSelector = {
     id?: number,
@@ -56,7 +58,7 @@ type ElementProperties = {
 }
 
 type Player = {
-    color: string,
+    color: Color,
     id: string,
     name: string,
     no: string
@@ -124,7 +126,7 @@ declare interface BoardGameArena {
      * @param color color of the player who is scoring for that target
      * @param score 
      */
-    displayScoring(targetId: number, color: string, score: number): void
+    displayScoring(targetId: number, color: Color, score: number): void
 
     /**
      * Allow you to retrieve informations about one game element specified using "selector" argument.
@@ -289,20 +291,20 @@ declare interface BoardGameArena {
      * @param playerColor 
      * @param value 
      */
-    incScore(playerColor: string, value: number): void
+    incScore(playerColor: Color, value: number): void
 
     /**
      * Sets the score for the player with the specified color.
      * @param playerColor 
      * @param value 
      */
-    setScore(playerColor: string, value: number): void
+    setScore(playerColor: Color, value: number): void
 
     /**
      * Gets the score of the player with the specified color.
      * @param playerColor 
      */
-    getScore(playerColor: string): number
+    getScore(playerColor: Color): number
 
     /**
      * Check if action is valid regarding current game state and raise an error if it's not the case.
@@ -319,7 +321,7 @@ declare interface BoardGameArena {
     /**
      * Returns the color code of the currently active player
      */
-    getActivePlayerColor(): string
+    getActivePlayerColor(): Color
 
     /**
      * Returns the name of the currently active player
@@ -345,12 +347,12 @@ declare interface BoardGameArena {
     /**
      * Returns the colors code of the currently active players
      */
-    getActivePlayerColors(): string[]
+    getActivePlayerColors(): Color[]
 
     /**
      * Returns the color code of the current player (the player who made the interface action being handled; may not be the active player).
      */
-    getCurrentPlayerColor(): string
+    getCurrentPlayerColor(): Color
 
     /**
      * Moves to the next state matching the provided transition. 
