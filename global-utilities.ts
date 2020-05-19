@@ -30,15 +30,20 @@ function deselect(id: number) {
     bga.removeStyle(id, PredefinedStyles.Selected);
 }
 
-function setProperties(elementId: number, properties: ElementProperties) {
+function setProperties(elementId: number, properties: SettableElementProperties) {
     var props: ElementsProperties = [];
     props[elementId] = properties;
     bga.setProperties(props);
 }
 
+enum Visibilities {
+    Everyone = "everyone",
+    HideInside = "hideinside"
+}
+
 function isVisibility(visibility: string): visibility is Visibility {
-    return visibility === 'everyone'
-        || visibility === 'hideinside'
+    return visibility === Visibilities.Everyone
+        || visibility === Visibilities.HideInside
         || Object.keys(bga.getPlayers()).some(color => visibility === `player${color}`);
 }
 
@@ -46,7 +51,7 @@ function toVisibility(visibility: string): Visibility {
     if (isVisibility(visibility)) {
         return visibility;
     }
-    bga.error(`Visibility '${visibility} is not valid.`);
+    bga.error(`Visibility '${visibility}' is not valid.`);
 }
 
 function setVisibility(id: number, visibility: Visibility) {
@@ -54,11 +59,11 @@ function setVisibility(id: number, visibility: Visibility) {
 }
 
 function showToEveryone(id: number) {
-    setVisibility(id, toVisibility("everyone"));
+    setVisibility(id, toVisibility(Visibilities.Everyone));
 }
 
 function hideToEveryone(id: number) {
-    setVisibility(id, toVisibility("hideinside"));
+    setVisibility(id, toVisibility(Visibilities.HideInside));
 }
 
 function showOnlyToPlayer(id: number, color: Color) {

@@ -8,6 +8,8 @@ type TranslatedString = {
 /**
  * Translation marker
  * @param message Message to translate
+ * @example bga.log(_("Event ${event_name} is triggered"), {  event_name: _( "Armageddon" ) } )
+ * Using this, game translators only have to translate one "Event XXX is triggered" string for all possible events.
  */
 declare function _(message: string): TranslatedString;
 
@@ -39,22 +41,115 @@ type ElementSelector = {
     name?: string,
     parent?: number,
     tags?: string[],
-    howToArrange?: ZoneArrangement
+    howToArrange?: ZoneArrangement,
+    limit?: number
 }
 
 type ElementsProperties = {
-    [key: number]: ElementProperties
+    [key: number]: SettableElementProperties
 }
 
 type ElementProperties = {
-    name?: string,
-    x?: number,
-    y?: number,
-    width?: number,
-    height?: number,
-    visible?: Visibility,
-    howToArrange?: ZoneArrangement,
-    inlineStyle?: string
+    id: number,
+    parent: number,
+
+    // Identity
+    name: string,
+    tags: string[],
+    backname: string,
+    tooltip: string,
+
+    // Appearance
+    image: string,
+    backimage: string,
+    icon: string,
+    color: Color,
+    fontsize: number,
+    bold: boolean,
+    italic: boolean,
+    underline: boolean,
+    image1: string,
+    image2: string,
+    image3: string,
+    image4: string,
+    image5: string,
+    image6: string,
+    image7: string,
+    image8: string,
+    image9: string,
+    image10: string,
+    image11: string,
+    image12: string,
+    image13: string,
+    image14: string,
+    image15: string,
+    image16: string,
+    image17: string,
+    image18: string,
+    image19: string,
+    image20: string,
+
+    // Position & Size
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    angle: number,
+    flipped: boolean,
+
+    // Visibility
+    visible: Visibility,
+    hideOnPlayersNbr: number,
+
+    // Behaviour
+    canMove: boolean,
+    whoMove: string,
+    whereMove: string,
+    canFlip: boolean,
+    whoFlip: string,
+    canSecretSee: boolean,
+    canRotate: boolean,
+    howRotate: "30" | "45" | "90" | "180",
+    whoRotate: string,
+    rotateOnStart: boolean,
+    canPlaceOnIt: boolean,
+    whatPlaceOnIt: string,
+    howToArrange: ZoneArrangement,
+    spreadedAlign: "center" | "topleft" | "top" | "topright" | "right" | "bottomright" | "bottom" | "bottomleft" | "left",
+    stackedMarginX: number,
+    stackedMarginY: number,
+    canShuffle: boolean,
+    shuffleOnStart: boolean,
+    canPick: boolean,
+    canDeal: boolean,
+    dealOnStart: number,
+    whereDeal: string,
+    canRoll: boolean,
+    canSet: boolean,
+    flipOnPlace: null | "no" | "down" | "up" | "toggle",
+    ownedBy: Color,
+
+    // Content
+    value: string,
+    prefix: string,
+    suffix: string,
+    tocount_on: boolean,
+    tocount: string,
+    tocount_location: string
+
+    // Scripts
+    onClick: string,
+    canSelect: boolean,
+    inlineStyle: string
+}
+
+type SettableElementProperties = Partial<Omit<ElementProperties, "id" | "parent">>;
+
+type GettableElementProperties = ElementProperties & {
+    // custom
+    // c_value => custom properties
+    // childs:id => property from the childs
+    // parent:id => property from the parent
 }
 
 type Player = {
@@ -133,7 +228,7 @@ declare interface BoardGameArena {
      * Return null if no element is found.
      * @param select selector
      */
-    getElement(select: ElementSelector): number,
+    getElement(select: ElementSelector): number
 
     /**
      * Allow you to retrieve informations about one game element specified using "selector" argument.
@@ -141,6 +236,7 @@ declare interface BoardGameArena {
      * @param select selector
      * @param property property to retrieve
      */
+    getElement<T extends keyof ElementProperties>(select: ElementSelector, property: T): ElementProperties[T]
     getElement(select: ElementSelector, property: string): any
 
     /**
@@ -149,7 +245,8 @@ declare interface BoardGameArena {
      * @param select selector
      * @param properties properties to retrieve
      */
-    getElement<T extends string>(select: ElementSelector, properties: T[]): { [K in T]: any }
+    getElement<T extends keyof ElementProperties>(select: ElementSelector, properties: T[]): { [K in T]: ElementProperties[K] }
+    getElement(select: ElementSelector, properties: string[]): { [k: string]: any }
 
     /**
      * Returns an object holding the properties of the elements matching the selector.
@@ -162,7 +259,16 @@ declare interface BoardGameArena {
      * @param selector selector
      * @param property to retrieve
      */
-    getElements(selector: ElementSelector, property: string): { [key: number]: { [key: number]: any } }
+    getElements<T extends keyof ElementProperties>(selector: ElementSelector, property: T): { [key: number]: { [K in T]: ElementProperties[K] } }
+    getElements(selector: ElementSelector, property: string): { [key: number]: { [K: string]: any } }
+
+    /**
+     * Returns an object holding the properties of the elements matching the selector.
+     * @param selector selector
+     * @param property to retrieve
+     */
+    getElements<T extends keyof ElementProperties>(selector: ElementSelector, property: T[]): { [key: number]: { [K in T]: ElementProperties[K] } }
+    getElements(selector: ElementSelector, property: string[]): { [key: number]: { [K: string]: any } }
 
     /**
      * Returns an array of all elements matching the selector, holding the required properties.
@@ -175,6 +281,7 @@ declare interface BoardGameArena {
      * @param selector selector
      * @param property property to retrieve
      */
+    getElementsArray<T extends keyof ElementProperties>(selector: ElementSelector, property: T): ElementProperties[T][]
     getElementsArray(selector: ElementSelector, property: string): any[]
 
     /**
@@ -182,7 +289,8 @@ declare interface BoardGameArena {
      * @param selector selector
      * @param property properties to retrieve
      */
-    getElementsArray<T extends string>(selector: ElementSelector, properties: T[]): { [K in T]: any }[]
+    getElementsArray<T extends keyof ElementProperties>(selector: ElementSelector, properties: T[]): { [K in T]: ElementProperties[K] }[]
+    getElementsArray(selector: ElementSelector, properties: string[]): { [K: number]: any }[]
 
     /**
      * Return true if "element_id" is a descendant of "parent_id" (ie : if element_id game element has been placed on parent_id game element).
