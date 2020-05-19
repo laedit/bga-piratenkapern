@@ -80,7 +80,7 @@ function normalRoll() {
         }
     }
 }
-// FIXME after each roll => move skulls to SkullDiceZone
+
 function skullIslandRoll() {
     // Reroll all dice which are not skull
     let selectedDice = getDiceNot(DieFaces.Skull);
@@ -89,7 +89,7 @@ function skullIslandRoll() {
     logDiceResult();
     moveSkullDiceToSkullZone();
 
-    let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter((dieValue: string) => dieValue === DieFaces.Skull.value).length;
+    let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter(dieValue => dieValue === DieFaces.Skull.value).length;
     bga.trace({ 'Skulls count': skullDiceCount });
 
     // As long as each roll got at least 1 skull
@@ -108,7 +108,7 @@ function skullIslandRoll() {
             if (color !== currentPlayerColor) {
                 let newScore = bga.getScore(color) - scoreToSubstract;
                 bga.setScore(color, newScore);
-                bga.log(_(`${player.name} loose <b>${scoreToSubstract}</b> points`));
+                bga.log(_("${playerName} loose <b>${score}</b> points"), { playerName: player.name, score: scoreToSubstract });
             }
         }
         bga.pause(1000);
@@ -127,7 +127,7 @@ function onStopClicked() {
     bga.displayScoring(bga.getElement({ name: 'RolledDiceZone' }), playerColor, playerScore);
     // Increase score
     bga.incScore(playerColor, playerScore);
-    bga.log(_("${player_name} stopped and win <b>" + playerScore + "</b> points"));
+    bga.log(_("${player_name} stopped and win <b>${score}</b> points"), { score: playerScore });
 
     endPlayerTurn();
 }

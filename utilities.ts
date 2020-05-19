@@ -40,7 +40,7 @@ function endPlayerTurn() {
     deselectAll();
 
     // Remove first card on deck and move to hidden zone
-    bga.moveTo(getFirstCardOnDeck(), bga.getElement({ name: 'Discard' }));
+    bga.moveTo(getFirstCardOnDeck("id"), bga.getElement({ name: 'Discard' }));
 
     // If the deck is empty
     if (bga.getElementsArray({ parent: bga.getElement({ name: 'Deck' }) }).length === 0) {
@@ -79,7 +79,7 @@ function getSkullDiceCount() {
 
 function getSkullsCount() {
     let skullsCount = getSkullDiceCount();
-    if (bga.hasTag(getFirstCardOnDeck(), 'SKULLS')) {
+    if (bga.hasTag(getFirstCardOnDeck("id"), 'SKULLS')) {
         skullsCount += Number(getFirstCardOnDeck('c_skulls'));
         bga.trace(`Total skulls: ${skullsCount}`);
     }
@@ -90,17 +90,14 @@ function moveSkullDiceToSkullZone() {
     bga.moveTo(getDice(DieFaces.Skull), bga.getElement({ name: 'SkullDiceZone' }));
 }
 
-function getFirstCardOnDeck(property?: string) {
-    if (property === undefined) {
-        property = 'id';
-    }
+function getFirstCardOnDeck<T extends keyof ElementProperties>(property: T | string): ElementProperties[T] {
     return bga.getElementsArray({ parent: bga.getElement({ name: 'Deck' }) }, property).reverse()[0];
 }
 
 function logDiceResult() {
     bga.log(_("${player_name} rolled ${dice}"), {
         dice: bga.getElementsArray({ tag: 'DICE' }, 'value')
-            .map((value: DieValue) => Object.values(DieFaces).find((dieFace: DieFace) => dieFace.value === value)?.name).join(", ")
+            .map(value => Object.values(DieFaces).find((dieFace: DieFace) => dieFace.value === value)?.name).join(", ")
     });
 }
 
