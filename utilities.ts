@@ -42,6 +42,9 @@ function endPlayerTurn() {
     // Hide dice
     bga.moveTo(Die.getAll(), Zones.BagOfDice);
 
+    // Move back the treasure zone
+    bga.moveTo(Zones.TreasureIsland, Zones.Park);
+
     // Remove first card on deck and move to hidden zone
     bga.moveTo(Card.getCurrent("id"), Zones.Discard);
 
@@ -55,6 +58,10 @@ function endPlayerTurn() {
         bga.moveTo(Card.getAll(), Zones.Deck);
     }
 
+    // If first card is treasure island => move TreasureIslandZone on top of the card
+    if (Card.isCurrent(PirateCard.Treasure)) {
+        bga.moveTo(Zones.TreasureIsland, Zones.Deck);
+    }
 
     // Update progression
     updateGameProgression();
@@ -78,11 +85,13 @@ function moveSkullDiceToSkullZone() {
     bga.moveTo(Die.getAllFace(DieFaces.Skull), Zones.SkullDice);
 }
 
-function logDiceResult() {
-    bga.log(_("${player_name} rolled ${dice}"), {
-        dice: bga.getElementsArray({ tag: 'DICE' }, 'value')
-            .map(value => Object.values(DieFaces).find((dieFace: DieFace) => dieFace.value === value)?.name).join(", ")
-    });
+function highlightTreasureZone() {
+    // FIXME doesn't work
+    bga.addStyle(Zones.TreasureIsland, PredefinedStyles.Light);
+    setProperties(Zones.TreasureIsland, { inlineStyle: "cursor: pointer;" });
 }
 
+function removeHighlightTreasureZone() {
+    bga.removeStyle(Zones.TreasureIsland, PredefinedStyles.Light);
+    setProperties(Zones.TreasureIsland, { inlineStyle: "cursor: default;" });
 }

@@ -89,5 +89,10 @@ function checkAction(action: Actions) {
 }
 
 function postSetup() {
+    // If first card is treasure island => move TreasureIslandZone on top of the card
+    if (Card.isCurrent(PirateCard.Treasure)) {
+        bga.moveTo(Zones.TreasureIsland, Zones.Deck);
+    }
+
     transitionToNextPlayer();
 }

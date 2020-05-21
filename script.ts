@@ -17,6 +17,10 @@ function onDieClicked(die_id: number) {
     }
     else {
         select(die_id);
+        // If current card is treasure
+        if (Card.isCurrent(PirateCard.Treasure)) {
+            highlightTreasureZone();
+        }
     }
 }
 
@@ -66,6 +70,10 @@ function normalRoll() {
         bga.cancel(_("You can't roll all dice"));
     }
     else {
+        removeHighlightTreasureZone();
+
+        bga.moveTo(selectedDice, Zones.RolledDice);
+
         bga.roll(selectedDice);
 
         deselectAll();
@@ -118,6 +126,8 @@ function skullIslandRoll() {
 
 function onStopClicked() {
     checkAction("StopTurn");
+
+    removeHighlightTreasureZone();
 
     // Calculate points
     let playerScore = calculateScore();
@@ -197,5 +207,19 @@ function getSetScore(setCount: number): number {
         case 8: return 4000;
 
         default: bga.error(`This set value isn't handled '${setCount}'`);
+    }
+}
+
+function onTreasureClicked(treasureZoneId: number) {
+    bga.stopEvent();
+    if (Card.isCurrent(PirateCard.Treasure)) {
+        let selectedDice = getSelected();
+        // if dice selected
+        if (selectedDice.length > 0) {
+            // allow to move dice on treasure
+            bga.moveTo(selectedDice, treasureZoneId);
+            deselectAll();
+            removeHighlightTreasureZone();
+        }
     }
 }
