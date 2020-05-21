@@ -5,7 +5,7 @@ function onDieClicked(die_id: number) {
 
     checkAction("SelectDie");
 
-    if (bga.getElement({ id: die_id }, 'value') === DieFaces.Skull.value) // if selected die is a skull
+    if (Die.is(die_id, DieFaces.Skull)) // if selected die is a skull
     { // TODO add exception for 1 die with Guardian card
         bga.cancel(_("Skull die can't be rolled again"));
     }
@@ -23,7 +23,7 @@ function onDieClicked(die_id: number) {
 function onRollClicked() {
     checkAction("RollDice");
 
-    if (bga.getElementsArray({ parent: bga.getElement({ name: 'RolledDiceZone' }) }).length === 0) {
+    if (bga.getElementsArray({ parent: Zones.RolledDice }).length === 0) {
         firstRoll();
     }
     else if (getSkullsCount() >= 4) {
@@ -35,9 +35,9 @@ function onRollClicked() {
 }
 
 function firstRoll() {
-    bga.roll(bga.getElementsArray({ tag: 'DICE' }));
+    bga.roll(Die.getAll());
     // Show dice
-    bga.moveTo(bga.getElementsArray({ tag: 'DICE' }), bga.getElement({ name: 'RolledDiceZone' }));
+    bga.moveTo(Die.getAll(), Zones.RolledDice);
     logDiceResult();
     moveSkullDiceToSkullZone();
 
@@ -83,7 +83,7 @@ function normalRoll() {
 
 function skullIslandRoll() {
     // Reroll all dice which are not skull
-    let selectedDice = getDiceNot(DieFaces.Skull);
+    let selectedDice = Die.getAllFaceNot(DieFaces.Skull);
     bga.roll(selectedDice);
 
     logDiceResult();
@@ -94,7 +94,7 @@ function skullIslandRoll() {
 
     // As long as each roll got at least 1 skull
     // and there is at least two dice to roll, the player keep rolling
-    if (skullDiceCount === 0 || getSkullDiceCount() === 7) {
+    if (skullDiceCount === 0 || Die.countSkulls() >= 7) {
         bga.log(_("${player_name} haven't roll new skull(s) and return from the <b>Island of Skull</b>"));
         // Else end player turn and remove 100 * skull for each player except current
         // FIXME double it if pirate card
@@ -124,7 +124,7 @@ function onStopClicked() {
 
     let playerColor = bga.getCurrentPlayerColor();
     // Display score
-    bga.displayScoring(bga.getElement({ name: 'RolledDiceZone' }), playerColor, playerScore);
+    bga.displayScoring(Zones.RolledDice, playerColor, playerScore);
     // Increase score
     bga.incScore(playerColor, playerScore);
     bga.log(_("${player_name} stopped and win <b>${score}</b> points"), { score: playerScore });
@@ -136,11 +136,11 @@ function calculateScore(): number {
     // There are 3 ways to score points:
 
     // 1. Sets of identical objects:
-    let coinsCount = getDiceCount(DieFaces.Coin);
-    let diamondsCount = getDiceCount(DieFaces.Diamond);
-    let parrotsCount = getDiceCount(DieFaces.Parrot);
-    let monkeysCount = getDiceCount(DieFaces.Monkey);
-    let sabersCount = getDiceCount(DieFaces.Sabers);
+    let coinsCount = Die.countFace(DieFaces.Coin);
+    let diamondsCount = Die.countFace(DieFaces.Diamond);
+    let parrotsCount = Die.countFace(DieFaces.Parrot);
+    let monkeysCount = Die.countFace(DieFaces.Monkey);
+    let sabersCount = Die.countFace(DieFaces.Sabers);
 
     let setsScore = getSetScore(parrotsCount);
     setsScore += getSetScore(monkeysCount);
@@ -161,7 +161,7 @@ function calculateScore(): number {
 
     // 3.Full Chest: A player who generates points with all eight dice receives a bonus of 500 points in addition to the score he made.
     // => if there is series of 2 or 1 dice which are not diamond or gold => not full chest
-    if (getSkullDiceCount() === 0
+    if (Die.countSkulls() === 0
         && (parrotsCount === 0 || parrotsCount > 2) //FIXME include animals card
         && (monkeysCount === 0 || monkeysCount > 2) //FIXME include animals card
         && (sabersCount === 0 || sabersCount > 2) //FIXME include pirate boat card

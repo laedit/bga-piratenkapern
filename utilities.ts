@@ -39,21 +39,22 @@ function endPlayerTurn() {
     // remove dice selection
     deselectAll();
 
+    // Hide dice
+    bga.moveTo(Die.getAll(), Zones.BagOfDice);
+
     // Remove first card on deck and move to hidden zone
-    bga.moveTo(getFirstCardOnDeck("id"), bga.getElement({ name: 'Discard' }));
+    bga.moveTo(Card.getCurrent("id"), Zones.Discard);
 
     // If the deck is empty
-    if (bga.getElementsArray({ parent: bga.getElement({ name: 'Deck' }) }).length === 0) {
+    if (bga.getElementsArray({ parent: Zones.Deck }).length === 0) {
         bga.pause(1000);
         // Shuffle the discard pile
-        bga.shuffle(bga.getElement({ name: 'Discard' }));
+        bga.shuffle(Zones.Discard);
         bga.pause(1000);
         // And move the cards back to the deck
-        bga.moveTo(bga.getElementsArray({ tag: 'CARD' }), bga.getElement({ name: 'Deck' }));
+        bga.moveTo(Card.getAll(), Zones.Deck);
     }
 
-    // Hide dice
-    bga.moveTo(bga.getElementsArray({ tag: 'DICE' }), bga.getElement({ name: 'BagOfDice' }));
 
     // Update progression
     updateGameProgression();
@@ -61,37 +62,20 @@ function endPlayerTurn() {
     transitionToNextPlayer();
 }
 
-function getDice(dieFaceSearched: DieFace) {
-    return bga.getElementsArray({ tag: 'DICE' }, ['id', 'value']).filter(die => die.value === dieFaceSearched.value).map(die => die.id)
-}
-
-function getDiceNot(dieFaceSearched: DieFace) {
-    return bga.getElementsArray({ tag: 'DICE' }, ['id', 'value']).filter(die => die.value !== dieFaceSearched.value).map(die => die.id)
-}
-
-function getDiceCount(dieFaceSearched: DieFace) {
-    return getDice(dieFaceSearched).length;
-}
-
-function getSkullDiceCount() {
-    return getDiceCount(DieFaces.Skull);
-}
-
+/**
+ * Count skulls on dice and current card
+ */
 function getSkullsCount() {
-    let skullsCount = getSkullDiceCount();
-    if (bga.hasTag(getFirstCardOnDeck("id"), 'SKULLS')) {
-        skullsCount += Number(getFirstCardOnDeck('c_skulls'));
+    let skullsCount = Die.countSkulls();
+    if (Card.isCurrent(PirateCard.Skulls)) {
+        skullsCount += Number(Card.getCurrent('c_skulls'));
         bga.trace(`Total skulls: ${skullsCount}`);
     }
     return skullsCount;
 }
 
 function moveSkullDiceToSkullZone() {
-    bga.moveTo(getDice(DieFaces.Skull), bga.getElement({ name: 'SkullDiceZone' }));
-}
-
-function getFirstCardOnDeck<T extends keyof ElementProperties>(property: T | string): ElementProperties[T] {
-    return bga.getElementsArray({ parent: bga.getElement({ name: 'Deck' }) }, property).reverse()[0];
+    bga.moveTo(Die.getAllFace(DieFaces.Skull), Zones.SkullDice);
 }
 
 function logDiceResult() {
@@ -101,15 +85,4 @@ function logDiceResult() {
     });
 }
 
-type DieName = "Parrot" | "Coin" | "Diamond" | "Skull" | "Monkey" | "Sabers";
-type DieValue = "1" | "2" | "3" | "4" | "5" | "6";
-type DieFace = { name: DieName, value: DieValue };
-
-const DieFaces: { [P in DieName]: DieFace } = {
-    Parrot: { name: "Parrot", value: "1" },
-    Coin: { name: "Coin", value: "2" },
-    Diamond: { name: "Diamond", value: "3" },
-    Skull: { name: "Skull", value: "4" },
-    Monkey: { name: "Monkey", value: "5" },
-    Sabers: { name: "Sabers", value: "6" }
 }
