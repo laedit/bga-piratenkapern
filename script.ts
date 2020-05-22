@@ -82,7 +82,7 @@ function normalRoll() {
 
         let skullDiceCount = getSkullsCount();
         // If there is 3+ skulls
-        bga.trace({ 'skulls count': skullDiceCount });
+        bga.trace('Skulls count :' + skullDiceCount);
         if (skullDiceCount >= 3) { // FIXME carte magicienne : le joueur pourrait vouloir relancer le troisième dé crâne
             endPlayerTurnBecauseSkulls();
         }
@@ -98,7 +98,7 @@ function skullIslandRoll() {
     moveSkullDiceToSkullZone();
 
     let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter(dieValue => dieValue === DieFaces.Skull.value).length;
-    bga.trace({ 'Skulls count': skullDiceCount });
+    bga.trace('Skulls count :' + skullDiceCount);
 
     // As long as each roll got at least 1 skull
     // and there is at least two dice to roll, the player keep rolling
@@ -142,15 +142,18 @@ function onStopClicked() {
     endPlayerTurn();
 }
 
-function calculateScore(): number {
+function calculateScore(zoneId?: number): number {
     // There are 3 ways to score points:
 
     // 1. Sets of identical objects:
-    let coinsCount = Die.countFace(DieFaces.Coin);
-    let diamondsCount = Die.countFace(DieFaces.Diamond);
-    let parrotsCount = Die.countFace(DieFaces.Parrot);
-    let monkeysCount = Die.countFace(DieFaces.Monkey);
-    let sabersCount = Die.countFace(DieFaces.Sabers);
+    let coinsCount = Die.countFace(DieFaces.Coin, zoneId); // FIXME coin card
+    let diamondsCount = Die.countFace(DieFaces.Diamond, zoneId); // FIXME diamond card
+
+    let parrotsCount = Die.countFace(DieFaces.Parrot, zoneId);
+    let monkeysCount = Die.countFace(DieFaces.Monkey, zoneId);
+    // FIXME animals card
+
+    let sabersCount = Die.countFace(DieFaces.Sabers, zoneId);
 
     let setsScore = getSetScore(parrotsCount);
     setsScore += getSetScore(monkeysCount);
@@ -212,7 +215,7 @@ function getSetScore(setCount: number): number {
 
 function onTreasureClicked(treasureZoneId: number) {
     bga.stopEvent();
-    if (Card.isCurrent(PirateCard.Treasure)) {
+    if (bga.isOn(treasureZoneId, Zones.Deck)) {
         let selectedDice = getSelected();
         // if dice selected
         if (selectedDice.length > 0) {

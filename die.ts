@@ -23,14 +23,17 @@ const Die = {
     is(dieId: number, dieFace: DieFace) {
         return bga.getElement({ id: dieId }, 'value') === dieFace.value
     },
-    getAllFace(dieSearched: DieFace) {
+    getAllFace(dieSearched: DieFace, zoneId?: number) {
+        if (zoneId) {
+            return bga.getElementsArray({ tag: DiceTag, parent: zoneId }, ['id', 'value']).filter(die => die.value === dieSearched.value).map(die => die.id)
+        }
         return bga.getElementsArray({ tag: DiceTag }, ['id', 'value']).filter(die => die.value === dieSearched.value).map(die => die.id)
     },
     getAllFaceNot(dieSearched: DieFace) {
         return bga.getElementsArray({ tag: DiceTag }, ['id', 'value']).filter(die => die.value !== dieSearched.value).map(die => die.id)
     },
-    countFace(dieSearched: DieFace) {
-        return Die.getAllFace(dieSearched).length;
+    countFace(dieSearched: DieFace, zoneId?: number) {
+        return Die.getAllFace(dieSearched, zoneId).length;
     },
     countSkulls() {
         return Die.countFace(DieFaces.Skull);

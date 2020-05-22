@@ -31,7 +31,23 @@ function changeOrStopDisplay(display: Display) {
 
 function endPlayerTurnBecauseSkulls() {
     bga.pause(2000); // pause during 2 seconds
-    bga.log(_("${player_name} got 3 <b>skulls</b> and doesn't win any points"));
+    let playerScore = 0;
+    if (bga.isOn(Zones.TreasureIsland, Zones.Deck)) {
+        // Calculate points
+        playerScore = calculateScore(Zones.TreasureIsland);
+    }
+
+    if (playerScore > 0) {
+        // Display score
+        let playerColor = bga.getCurrentPlayerColor();
+        bga.displayScoring(Zones.RolledDice, playerColor, playerScore);
+        // Increase score
+        bga.incScore(playerColor, playerScore);
+        bga.log(_("${player_name} got 3 <b>skulls</b> but manage to win ${score} points thanks to the treasure island"), { score: playerScore });
+    }
+    else {
+        bga.log(_("${player_name} got 3 <b>skulls</b> and doesn't win any points"));
+    }
     endPlayerTurn();
 }
 
