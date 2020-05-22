@@ -105,8 +105,10 @@ function skullIslandRoll() {
     if (skullDiceCount === 0 || Die.countSkulls() >= 7) {
         bga.log(_("${player_name} haven't roll new skull(s) and return from the <b>Island of Skull</b>"));
         // Else end player turn and remove 100 * skull for each player except current
-        // FIXME double it if pirate card
         let scoreToSubstract = getSkullsCount() * 100;
+        if (Card.isCurrent(PirateCard.Pirate)) {
+            scoreToSubstract = scoreToSubstract * 2;
+        }
 
         let currentPlayerColor = bga.getCurrentPlayerColor();
 
@@ -183,7 +185,9 @@ function calculateScore(zoneId?: number): number {
         bga.trace('Full chest!');
     }
 
-    // FIXME apply fortune card effect if necessary
+    if (Card.isCurrent(PirateCard.Pirate)) {
+        totalScore = totalScore * 2;
+    }
     return totalScore;
 }
 
