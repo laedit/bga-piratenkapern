@@ -20,5 +20,8 @@ const Card = {
     },
     isCurrent(card: PirateCard) {
         return bga.hasTag(Card.getCurrent("id"), card);
+    },
+    isGuardianActiveAndNotUsed() {
+        return this.isCurrent(PirateCard.Guardian) && this.getCurrent("c_used") === "false";
     }
 }

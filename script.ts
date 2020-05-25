@@ -5,15 +5,37 @@ function onDieClicked(die_id: number) {
 
     checkAction("SelectDie");
 
-    if (Die.is(die_id, DieFaces.Skull)) // if selected die is a skull
-    { // TODO add exception for 1 die with Guardian card
-        bga.cancel(_("Skull die can't be rolled again"));
-    }
-    else if (isSelected(die_id)) {
+    if (isSelected(die_id)) {
         deselect(die_id);
     }
-    else if (getSelected().length === 7) {
-        bga.cancel(_("You can't roll all dice"));
+    // cas phase GuardianUsage
+    else if (Die.countSkulls() >= 3) {
+        if (Die.is(die_id, DieFaces.Skull)) {
+            if (getSelected().length > 0) {
+                bga.cancel(_("You can only roll one skull die"));
+            }
+            else {
+                select(die_id);
+            }
+        }
+        else {
+            bga.cancel(_("You can only roll one skull die"));
+        }
+    }
+    else if (Die.is(die_id, DieFaces.Skull)) // if selected die is a skull
+    {
+        if (Card.isGuardianActiveAndNotUsed()) {
+            //s'il y a déjà un dé crâne sélectionné : erreur
+            if (getSelected().some(selectedDieId => Die.is(selectedDieId, DieFaces.Skull))) {
+                bga.cancel(_("You can only roll one skull die"));
+            }
+            else {
+                // sinon sélectionné
+                select(die_id);
+            }
+        } else {
+            bga.cancel(_("Skull die can't be rolled again"));
+        }
     }
     else {
         select(die_id);
@@ -27,7 +49,32 @@ function onDieClicked(die_id: number) {
 function onRollClicked() {
     checkAction("RollDice");
 
-    if (bga.getElementsArray({ parent: Zones.RolledDice }).length === 0) {
+    // rerolling of skull die
+    if (Card.isGuardianActiveAndNotUsed() && getSelected().some(selectedDieId => Die.is(selectedDieId, DieFaces.Skull))) {
+        // Mark guardian as used for this turn
+        setProperties(Card.getCurrent("id"), { "c_used": "true" });
+
+        let wasGoingToSkullIsland = getSkullsCount() === 4;
+
+        let selectedDice = getSelected();
+        bga.moveTo(selectedDice, Zones.RolledDice);
+        bga.roll(selectedDice);
+        deselectAll();
+        logDiceResult();
+        moveSkullDiceToSkullZone();
+
+        let skullDiceCount = getSkullsCount();
+        // If there is 3+ skulls
+        bga.trace('Skulls count :' + skullDiceCount);
+
+        if (skullDiceCount === 4 && wasGoingToSkullIsland) {
+            transitionToSkullIsland();
+        }
+        else if (skullDiceCount >= 3) {
+            endPlayerTurnBecauseSkulls();
+        }
+    }
+    else if (Zones.getChildrenFrom(Zones.RolledDice).length === 0) {
         firstRoll();
     }
     else if (getSkullsCount() >= 4) {
@@ -45,15 +92,25 @@ function firstRoll() {
     logDiceResult();
     moveSkullDiceToSkullZone();
 
-    let skullDiceCount = getSkullsCount();
+    let skullsCount = getSkullsCount();
     // If there is 3 skulls
-    if (skullDiceCount === 3) { // FIXME carte magicienne : le joueur pourrait vouloir relancer le troisième dé crâne
-        endPlayerTurnBecauseSkulls();
+    if (skullsCount === 3) {
+        if (Card.isGuardianActiveAndNotUsed()) {
+            transitionToGuardianUsage();
+        }
+        else {
+            endPlayerTurnBecauseSkulls();
+        }
     }
     // If there is 4+ skulls
-    else if (skullDiceCount >= 4) {
+    else if (skullsCount >= 4) {
         // the player goes to the island of skull
-        transitionToSkullIsland();
+        if (skullsCount === 4 && Card.isGuardianActiveAndNotUsed()) {
+            transitionToGuardianUsage();
+        }
+        else {
+            transitionToSkullIsland();
+        }
     }
     else {
         transitionToNextRoll();
@@ -66,9 +123,6 @@ function normalRoll() {
     if (selectedDice.length < 2) {
         bga.cancel(_("You must select at least two dice to roll"));
     }
-    else if (selectedDice.length === 8) {
-        bga.cancel(_("You can't roll all dice"));
-    }
     else {
         removeHighlightTreasureZone();
 
@@ -80,11 +134,16 @@ function normalRoll() {
         logDiceResult();
         moveSkullDiceToSkullZone();
 
-        let skullDiceCount = getSkullsCount();
+        let skullsCount = getSkullsCount();
         // If there is 3+ skulls
-        bga.trace('Skulls count :' + skullDiceCount);
-        if (skullDiceCount >= 3) { // FIXME carte magicienne : le joueur pourrait vouloir relancer le troisième dé crâne
-            endPlayerTurnBecauseSkulls();
+        bga.trace('Skulls count :' + skullsCount);
+        if (skullsCount >= 3) {
+            if (skullsCount === 3 && Card.isGuardianActiveAndNotUsed()) {
+                transitionToGuardianUsage();
+            }
+            else {
+                endPlayerTurnBecauseSkulls();
+            }
         }
     }
 }
@@ -129,19 +188,33 @@ function skullIslandRoll() {
 function onStopClicked() {
     checkAction("StopTurn");
 
-    removeHighlightTreasureZone();
+    // Card: Guardian
+    let skullsCount = getSkullsCount();
+    if (Card.isGuardianActiveAndNotUsed() && skullsCount >= 3) {
+        // The player choose to not use the Guardian
+        if (skullsCount === 3) {
+            endPlayerTurnBecauseSkulls();
+        }
+        else {
+            transitionToSkullIsland();
+        }
+    }
+    else {
+        // Card: Treasure Island
+        removeHighlightTreasureZone();
 
-    // Calculate points
-    let playerScore = calculateScore();
+        // Calculate points
+        let playerScore = calculateScore();
 
-    let playerColor = bga.getCurrentPlayerColor();
-    // Display score
-    bga.displayScoring(Zones.RolledDice, playerColor, playerScore);
-    // Increase score
-    bga.incScore(playerColor, playerScore);
-    bga.log(_("${player_name} stopped and win <b>${score}</b> points"), { score: playerScore });
+        let playerColor = bga.getCurrentPlayerColor();
+        // Display score
+        bga.displayScoring(Zones.RolledDice, playerColor, playerScore);
+        // Increase score
+        bga.incScore(playerColor, playerScore);
+        bga.log(_("${player_name} stopped and win <b>${score}</b> points"), { score: playerScore });
 
-    endPlayerTurn();
+        endPlayerTurn();
+    }
 }
 
 function calculateScore(zoneId?: number): number {

@@ -3,7 +3,8 @@ type Transition = { name: string, id: number };
 const Transitions = {
     NextPlayer: { name: "nextPlayer", id: 200 },
     SkullIsland: { name: "skullIsland", id: 201 },
-    NextRoll: { name: "nextRoll", id: 202 }
+    NextRoll: { name: "nextRoll", id: 202 },
+    GuardianUsage: { name: "guardianUsage", id: 203 }
 };
 
 type Actions = "RollDice" | "SelectDie" | "StopTurn";
@@ -22,7 +23,7 @@ function states(): States<Actions> {
             description: _('${actplayer} must roll all dice'),
             descriptionmyturn: _('${you} must roll all dice'),
             possibleactions: ['RollDice'], // RollDice => If rolledDice is empty
-            transitions: getTransitions(Transitions.NextPlayer, Transitions.SkullIsland, Transitions.NextRoll)
+            transitions: getTransitions(Transitions.NextPlayer, Transitions.SkullIsland, Transitions.NextRoll, Transitions.GuardianUsage)
         },
 
         // skull island
@@ -38,8 +39,16 @@ function states(): States<Actions> {
             description: _('${actplayer} must roll dice or stop'),
             descriptionmyturn: _('${you} must roll dice or stop'),
             possibleactions: ['SelectDie', 'RollDice', 'StopTurn'],
-            transitions: getTransitions(Transitions.NextPlayer)
+            transitions: getTransitions(Transitions.NextPlayer, Transitions.GuardianUsage)
         },
+
+        // Offer Guardian usage
+        203: {
+            description: _('${actplayer} may reroll one skull die'),
+            descriptionmyturn: _('${you} may reroll one skull die'),
+            possibleactions: ['SelectDie', 'RollDice', 'StopTurn'], // => If there is 3+ skulls + guardian non used
+            transitions: getTransitions(Transitions.NextPlayer, Transitions.SkullIsland, Transitions.NextRoll)
+        }
 
         // last round?
         // Or Check if current player have 6000+ points => set custom properties HaveStartedLastRound
@@ -82,6 +91,12 @@ function transitionToNextRoll() {
     changeOrStopDisplay("block");
 
     transitionTo(Transitions.NextRoll);
+}
+
+function transitionToGuardianUsage() {
+    changeOrStopDisplay("block");
+
+    transitionTo(Transitions.GuardianUsage);
 }
 
 function checkAction(action: Actions) {

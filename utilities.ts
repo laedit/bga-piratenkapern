@@ -78,6 +78,10 @@ function endPlayerTurn() {
     if (Card.isCurrent(PirateCard.Treasure)) {
         bga.moveTo(Zones.TreasureIsland, Zones.Deck);
     }
+    if (Card.isCurrent(PirateCard.Guardian)) {
+        // Reset guardian
+        setProperties(Card.getCurrent("id"), { "c_used": "false" });
+    }
 
     // Update progression
     updateGameProgression();
