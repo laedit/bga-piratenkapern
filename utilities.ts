@@ -65,7 +65,7 @@ function endPlayerTurn() {
     bga.moveTo(Card.getCurrent("id"), Zones.Discard);
 
     // If the deck is empty
-    if (bga.getElementsArray({ parent: Zones.Deck }).length === 0) {
+    if (Zones.getChildrenFrom(Zones.Deck).length === 0) {
         bga.pause(1000);
         // Shuffle the discard pile
         bga.shuffle(Zones.Discard);

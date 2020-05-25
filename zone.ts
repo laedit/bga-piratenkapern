@@ -12,4 +12,8 @@ class Zones {
     static get BagOfDice() { return this.get("BagOfDice") }
     static get RolledDice() { return this.get("RolledDiceZone") }
     static get Discard() { return this.get("Discard") }
+
+    static getChildrenFrom<T extends keyof ElementProperties>(zoneId: number, property?: T | string): ElementProperties[T][] {
+        return bga.getElementsArray({ parent: zoneId }, property ?? "id");
+    }
 }

@@ -16,7 +16,7 @@ const Card = {
         return bga.getElementsArray({ tag: CardTag });
     },
     getCurrent<T extends keyof ElementProperties>(property: T | string): ElementProperties[T] {
-        return bga.getElementsArray({ parent: Zones.Deck }, property).reverse()[0];
+        return Zones.getChildrenFrom(Zones.Deck, property).reverse()[0];
     },
     isCurrent(card: PirateCard) {
         return bga.hasTag(Card.getCurrent("id"), card);
