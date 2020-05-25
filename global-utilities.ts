@@ -30,7 +30,7 @@ function deselect(id: number) {
     bga.removeStyle(id, PredefinedStyles.Selected);
 }
 
-function setProperties(elementId: number, properties: SettableElementProperties) {
+function setProperties(elementId: number, properties: SettableElementProperties | { [key: string]: string }) {
     var props: ElementsProperties = [];
     props[elementId] = properties;
     bga.setProperties(props);

@@ -143,14 +143,7 @@ type ElementProperties = {
     inlineStyle: string
 }
 
-type SettableElementProperties = Partial<Omit<ElementProperties, "id" | "parent">>;
-
-type GettableElementProperties = ElementProperties & {
-    // custom
-    // c_value => custom properties
-    // childs:id => property from the childs
-    // parent:id => property from the parent
-}
+type SettableElementProperties = Partial<Omit<ElementProperties, "id" | "parent">> | { [key: string]: string };
 
 type Player = {
     color: Color,
@@ -554,6 +547,7 @@ declare interface BoardGameArena {
      * This function allows to directly update properties of an object, and to manage custom properties if needed (custom properties must start with prefix "c_").
      */
     setProperties(properties: ElementsProperties): void
+    setProperties(properties: { [key: string]: string }): void
 
     /**
      * Returns the current game variant (0 for none, 1 for option #1, 2 for option #2 and 3 for option #3)
