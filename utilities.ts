@@ -107,11 +107,11 @@ function moveSkullDiceToSkullZone() {
 
 function highlightTreasureZone() {
     // FIXME doesn't work
-    bga.addStyle(Zones.TreasureIsland, PredefinedStyles.Light);
+    bga.addStyle(Zones.TreasureIsland, PredefinedStyles.Clickable);
     setProperties(Zones.TreasureIsland, { inlineStyle: "cursor: pointer;" });
 }
 
 function removeHighlightTreasureZone() {
-    bga.removeStyle(Zones.TreasureIsland, PredefinedStyles.Light);
+    bga.removeStyle(Zones.TreasureIsland, PredefinedStyles.Clickable);
     setProperties(Zones.TreasureIsland, { inlineStyle: "cursor: default;" });
 }
