@@ -241,7 +241,7 @@ function calculateScore(zoneId?: number): number {
     // There are 3 ways to score points:
 
     // 1. Sets of identical objects:
-    let coinsCount = Die.countFace(DieFaces.Coin, zoneId); // FIXME coin card
+    let coinsCount = Die.countFace(DieFaces.Coin, zoneId) + (Card.isCurrent(PirateCard.Coin) ? 1 : 0);
     let diamondsCount = Die.countFace(DieFaces.Diamond, zoneId); // FIXME diamond card
 
     let parrotsCount = Die.countFace(DieFaces.Parrot, zoneId);
