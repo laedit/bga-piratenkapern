@@ -180,8 +180,9 @@ declare interface BoardGameArena {
     /**
      * This is the function to use when a player is doing something against game rules.
      * @param message Message that will be displayed to this player as a "red message", so he/she can understand the rule.
+     * @param parameters Message parameters
      */
-    cancel(message: TranslatedString): void
+    cancel(message: TranslatedString, parameters?: object): void
 
     /**
      * This is the function to use when some unexpected error happens in your script.
