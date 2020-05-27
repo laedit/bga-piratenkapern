@@ -242,7 +242,7 @@ function calculateScore(zoneId?: number): number {
 
     // 1. Sets of identical objects:
     let coinsCount = Die.countFace(DieFaces.Coin, zoneId) + (Card.isCurrent(PirateCard.Coin) ? 1 : 0);
-    let diamondsCount = Die.countFace(DieFaces.Diamond, zoneId); // FIXME diamond card
+    let diamondsCount = Die.countFace(DieFaces.Diamond, zoneId) + (Card.isCurrent(PirateCard.Diamond) ? 1 : 0);
 
     let parrotsCount = Die.countFace(DieFaces.Parrot, zoneId);
     let monkeysCount = Die.countFace(DieFaces.Monkey, zoneId);
