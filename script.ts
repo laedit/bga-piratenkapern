@@ -246,7 +246,10 @@ function calculateScore(zoneId?: number): number {
 
     let parrotsCount = Die.countFace(DieFaces.Parrot, zoneId);
     let monkeysCount = Die.countFace(DieFaces.Monkey, zoneId);
-    // FIXME animals card
+    if (Card.isCurrent(PirateCard.Animals)) {
+        monkeysCount += parrotsCount;
+        parrotsCount = 0;
+    }
 
     let sabersCount = Die.countFace(DieFaces.Sabers, zoneId);
 
@@ -271,8 +274,8 @@ function calculateScore(zoneId?: number): number {
     // => if there is series of 2 or 1 dice which are not diamond or gold => not full chest
     // with exceptions from animals and pirate boat cards
     if (Die.countSkulls() === 0
-        && (parrotsCount === 0 || parrotsCount > 2) //FIXME include animals card
-        && (monkeysCount === 0 || monkeysCount > 2) //FIXME include animals card
+        && (parrotsCount === 0 || parrotsCount > 2)
+        && (monkeysCount === 0 || monkeysCount > 2)
         && (sabersCount === 0 || sabersCount > 2
             || (Card.isCurrent(PirateCard.PirateBoat) && sabersCount === Card.getPirateBoatSabersAndPoints()[0]))
     ) {
