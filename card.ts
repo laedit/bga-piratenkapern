@@ -23,5 +23,8 @@ const Card = {
     },
     isGuardianActiveAndNotUsed() {
         return this.isCurrent(PirateCard.Guardian) && this.getCurrent("c_used") === "false";
+    },
+    getPirateBoatSabersAndPoints(): [number, number] {
+        return [Number(this.getCurrent("c_sabers")), Number(this.getCurrent("c_points"))];
     }
 }

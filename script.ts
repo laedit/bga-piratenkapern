@@ -108,6 +108,9 @@ function firstRoll() {
         if (skullsCount === 4 && Card.isGuardianActiveAndNotUsed()) {
             transitionToGuardianUsage();
         }
+        else if (Card.isCurrent(PirateCard.PirateBoat)) {
+            endPlayerTurnBecauseSkulls();
+        }
         else {
             transitionToSkullIsland();
         }
@@ -199,6 +202,27 @@ function onStopClicked() {
             transitionToSkullIsland();
         }
     }
+    // Card: Pirate Boat
+    else if (Card.isCurrent(PirateCard.PirateBoat)) {
+        let [sabers, points] = Card.getPirateBoatSabersAndPoints();
+        let sabersDiceCount = Die.getAllFace(DieFaces.Sabers).length;
+
+        if (sabersDiceCount >= sabers) {
+            bga.log(_("${player_name} successfully gets the ${sabers} <b>sabers</b> and win ${score} points"), { sabers: sabers, score: points });
+
+            // Calculate points
+            let playerScore = calculateScore() + points;
+
+            DisplayAndIncScore(playerScore);
+            bga.log(_("${player_name} stopped and win <b>${score}</b> points"), { score: playerScore });
+        }
+        else {
+            DisplayAndIncScore(-points);
+            bga.log(_("${player_name} failed to get the ${sabers} <b>sabers</b> and loose ${score} points"), { sabers: sabers, score: points });
+        }
+
+        endPlayerTurn();
+    }
     else {
         // Card: Treasure Island
         removeHighlightTreasureZone();
@@ -206,11 +230,7 @@ function onStopClicked() {
         // Calculate points
         let playerScore = calculateScore();
 
-        let playerColor = bga.getCurrentPlayerColor();
-        // Display score
-        bga.displayScoring(Zones.RolledDice, playerColor, playerScore);
-        // Increase score
-        bga.incScore(playerColor, playerScore);
+        DisplayAndIncScore(playerScore);
         bga.log(_("${player_name} stopped and win <b>${score}</b> points"), { score: playerScore });
 
         endPlayerTurn();
@@ -249,10 +269,12 @@ function calculateScore(zoneId?: number): number {
 
     // 3.Full Chest: A player who generates points with all eight dice receives a bonus of 500 points in addition to the score he made.
     // => if there is series of 2 or 1 dice which are not diamond or gold => not full chest
+    // with exceptions from animals and pirate boat cards
     if (Die.countSkulls() === 0
         && (parrotsCount === 0 || parrotsCount > 2) //FIXME include animals card
         && (monkeysCount === 0 || monkeysCount > 2) //FIXME include animals card
-        && (sabersCount === 0 || sabersCount > 2) //FIXME include pirate boat card
+        && (sabersCount === 0 || sabersCount > 2
+            || (Card.isCurrent(PirateCard.PirateBoat) && sabersCount === Card.getPirateBoatSabersAndPoints()[0]))
     ) {
         totalScore += 500;
         bga.trace('Full chest!');

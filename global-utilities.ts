@@ -8,6 +8,7 @@ const PredefinedStyles = {
     Rounded: "ROUNDED",
     ClickableRounded: "CLICKABLE_ROUNDED"
 }
+
 const SelectedTag = 'sbstyle_selected';
 
 function select(id: number) {

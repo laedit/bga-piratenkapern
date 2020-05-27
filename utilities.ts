@@ -29,24 +29,40 @@ function changeOrStopDisplay(display: Display) {
     setProperties(bga.getElement({ name: 'Stop' }), { inlineStyle: `display: ${display};` });
 }
 
+/**
+ * Display and increase the score of the current player
+ * @param score score to display and add to the score of the current player
+ */
+function DisplayAndIncScore(score: number) {
+    // Display score
+    let playerColor = bga.getCurrentPlayerColor();
+    bga.displayScoring(Zones.RolledDice, playerColor, score);
+    // Increase score
+    bga.incScore(playerColor, score);
+}
+
 function endPlayerTurnBecauseSkulls() {
     bga.pause(2000); // pause during 2 seconds
-    let playerScore = 0;
-    if (bga.isOn(Zones.TreasureIsland, Zones.Deck)) {
-        // Calculate points
-        playerScore = calculateScore(Zones.TreasureIsland);
-    }
 
-    if (playerScore > 0) {
-        // Display score
-        let playerColor = bga.getCurrentPlayerColor();
-        bga.displayScoring(Zones.RolledDice, playerColor, playerScore);
-        // Increase score
-        bga.incScore(playerColor, playerScore);
-        bga.log(_("${player_name} got 3 <b>skulls</b> but manage to win ${score} points thanks to the treasure island"), { score: playerScore });
+    if (Card.isCurrent(PirateCard.PirateBoat)) {
+        let [sabers, points] = Card.getPirateBoatSabersAndPoints();
+        DisplayAndIncScore(-points);
+        bga.log(_("${player_name} failed to get the ${sabers} <b>sabers</b> and loose ${score} points"), { sabers: sabers, score: points });
     }
     else {
-        bga.log(_("${player_name} got 3 <b>skulls</b> and doesn't win any points"));
+        let playerScore = 0;
+        if (bga.isOn(Zones.TreasureIsland, Zones.Deck)) {
+            // Calculate points
+            playerScore = calculateScore(Zones.TreasureIsland);
+        }
+
+        if (playerScore > 0) {
+            DisplayAndIncScore(playerScore);
+            bga.log(_("${player_name} got 3 <b>skulls</b> but manage to win ${score} points thanks to the treasure island"), { score: playerScore });
+        }
+        else {
+            bga.log(_("${player_name} got 3 <b>skulls</b> and doesn't win any points"));
+        }
     }
     endPlayerTurn();
 }
