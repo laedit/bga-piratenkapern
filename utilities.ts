@@ -103,7 +103,7 @@ function endPlayerTurn() {
     // Update progression
     updateGameProgression();
 
-    transitionToNextPlayer();
+    transitionToCheckEndOfGame();
 }
 
 /**
@@ -131,4 +131,14 @@ function highlightTreasureZone() {
 function removeHighlightTreasureZone() {
     bga.removeStyle(Zones.TreasureIsland, PredefinedStyles.Clickable);
     setProperties(Zones.TreasureIsland, { inlineStyle: "cursor: default;" });
+}
+
+type GlobalVariables = "c_lastTurnPlayer" | "c_immediateWin";
+
+function getGlobalVariable(variableName: GlobalVariables) {
+    return bga.getElement({ name: "ZonePark" }, variableName);
+}
+
+function setGlobalVariable(variableName: GlobalVariables, newValue: string) {
+    setProperties(Zones.Park, { [variableName]: newValue });
 }
