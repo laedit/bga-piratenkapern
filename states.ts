@@ -120,13 +120,13 @@ function checkEndOfGame() {
     Dès qu'un joueur a atteint 6000 points ou plus, tous les autres joueurs après lui partent en voyage de capture. Si son score est dépassé, il peut effectuer un dernier raid. Le joueur qui a le plus de points gagne.
     Attention : si aucun joueur n'a plus de 6000 points au tableau d'affichage en raison du dernier raid, le jeu continue jusqu'à ce qu'un joueur ait atteint à nouveau au moins 6000 points. Celui-ci gagne immédiatement.
     **/
-    let players = Object.keys(bga.getPlayers()).map(color => { return { "color": color, score: bga.getScore(color) } });
+    let players = Object.values(bga.getPlayers()).map(player => { return Object.assign(player, { score: bga.getScore(player.color) }) });
     let currentPlayerColor = bga.getCurrentPlayerColor();
     let currentPlayerScore = players.find(p => p.color === currentPlayerColor)!.score;
 
     if (currentPlayerColor === getGlobalVariable("c_lastTurnPlayer")) {
         bga.trace(`Player ${currentPlayerColor} last turn`);
-        if (players.every(p => bga.getScore(p.color) < WinningScore)) {
+        if (players.every(p => p.score < WinningScore)) {
             setGlobalVariable("c_immediateWin", "true");
             bga.trace("Immediate win started");
         }
@@ -153,10 +153,17 @@ function checkEndOfGame() {
 
     // nextPlayer is really activated once out of this code
     // so we will try to get the "next" player color
-    currentPlayerColor = players.map(p=>p.color).find((_color, index, colors) => colors[index - 1] == currentPlayerColor)!;
+    let nextPlayerNo = Number(players.find(p => p.color === currentPlayerColor)!.no);
+    if (nextPlayerNo === players.length) {
+        nextPlayerNo = 1;
+    }
+    else {
+        nextPlayerNo += 1;
+    }
+    currentPlayerColor = players.find(player => player.no === nextPlayerNo.toString())!.color;
 
     if (currentPlayerColor === getGlobalVariable("c_lastTurnPlayer")) {
-        if (players.some(p => bga.getScore(p.color) >= WinningScore)) {
+        if (players.some(p => p.score >= WinningScore)) {
             if (players.reduce((prev, current) => (prev.score > current.score) ? prev : current).color === currentPlayerColor) { // currentPlayer.Score is max scores
                 bga.trace("End game by last turn and max score");
                 bga.setGameProgression(100);
