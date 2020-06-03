@@ -112,8 +112,8 @@ function getSkullsCount() {
     let skullsCount = Die.countSkulls();
     if (Card.isCurrent(PirateCard.Skulls)) {
         skullsCount += Number(Card.getCurrent('c_skulls'));
-        bga.trace(`Total skulls: ${skullsCount}`);
     }
+    bga.trace(`Skulls count: ${skullsCount}`);
     return skullsCount;
 }
 

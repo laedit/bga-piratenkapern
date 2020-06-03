@@ -65,7 +65,6 @@ function onRollClicked() {
 
         let skullDiceCount = getSkullsCount();
         // If there is 3+ skulls
-        bga.trace('Skulls count :' + skullDiceCount);
 
         if (skullDiceCount === 4 && wasGoingToSkullIsland) {
             transitionToSkullIsland();
@@ -139,7 +138,6 @@ function normalRoll() {
 
         let skullsCount = getSkullsCount();
         // If there is 3+ skulls
-        bga.trace('Skulls count :' + skullsCount);
         if (skullsCount >= 3) {
             if (skullsCount === 3 && Card.isGuardianActiveAndNotUsed()) {
                 transitionToGuardianUsage();
@@ -160,7 +158,7 @@ function skullIslandRoll() {
     moveSkullDiceToSkullZone();
 
     let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter(dieValue => dieValue === DieFaces.Skull.value).length;
-    bga.trace('Skulls count :' + skullDiceCount);
+    bga.trace('New skulls count :' + skullDiceCount);
 
     // As long as each roll got at least 1 skull
     // and there is at least two dice to roll, the player keep rolling
@@ -247,6 +245,7 @@ function calculateScore(zoneId?: number): number {
     let parrotsCount = Die.countFace(DieFaces.Parrot, zoneId);
     let monkeysCount = Die.countFace(DieFaces.Monkey, zoneId);
     if (Card.isCurrent(PirateCard.Animals)) {
+        bga.trace("Animals card activated");
         monkeysCount += parrotsCount;
         parrotsCount = 0;
     }
