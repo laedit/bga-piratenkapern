@@ -122,6 +122,10 @@ function firstRoll() {
 function normalRoll() {
     let selectedDice = getSelected();
 
+    if (selectedDice.length === 0) {
+        selectedDice = Die.getAll(Zones.RolledDice);
+    }
+    
     if (selectedDice.length < 2) {
         bga.cancel(_("You must select at least two dice to roll"));
     }
