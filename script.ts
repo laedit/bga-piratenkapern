@@ -73,7 +73,7 @@ function onRollClicked() {
             endPlayerTurnBecauseSkulls();
         }
     }
-    else if (Zones.getChildrenFrom(Zones.RolledDice).length === 0) {
+    else if (Zones.getChildrenFrom(Zones.BagOfDice).length === 8) {
         firstRoll();
     }
     else if (getSkullsCount() >= 4) {
