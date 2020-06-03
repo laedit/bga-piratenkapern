@@ -118,7 +118,7 @@ function getSkullsCount() {
 }
 
 function moveSkullDiceToSkullZone() {
-    bga.moveTo(Die.getAllFace(DieFaces.Skull), Zones.SkullDice);
+    bga.moveTo([...Die.getAllFace(DieFaces.Skull, Zones.RolledDice), ...Die.getAllFace(DieFaces.Skull, Zones.TreasureIsland)], Zones.SkullDice);
 }
 
 function highlightTreasureZone() {

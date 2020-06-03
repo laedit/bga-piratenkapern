@@ -14,7 +14,10 @@ const DieFaces: { [P in DieName]: DieFace } = {
 const DiceTag = "DICE";
 
 const Die = {
-    getAll() {
+    getAll(zoneId?: number) {
+        if (zoneId) {
+            return bga.getElementsArray({ tag: DiceTag, parent: zoneId });
+        }
         return bga.getElementsArray({ tag: DiceTag });
     },
     getAllValues() {
