@@ -93,6 +93,7 @@ function endPlayerTurn() {
 
     // If first card is treasure island => move TreasureIslandZone on top of the card
     if (Card.isCurrent(PirateCard.Treasure)) {
+        bga.pause(1000);
         bga.moveTo(Zones.TreasureIsland, Zones.Deck);
     }
     if (Card.isCurrent(PirateCard.Guardian)) {
