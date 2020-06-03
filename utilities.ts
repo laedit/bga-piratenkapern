@@ -88,6 +88,7 @@ function endPlayerTurn() {
         bga.pause(1000);
         // And move the cards back to the deck
         bga.moveTo(Card.getAll(), Zones.Deck);
+        bga.pause(1000);
     }
 
     // If first card is treasure island => move TreasureIslandZone on top of the card
