@@ -111,10 +111,7 @@ function endPlayerTurn() {
  * Count skulls on dice and current card
  */
 function getSkullsCount() {
-    let skullsCount = Die.countSkulls();
-    if (Card.isCurrent(PirateCard.Skulls)) {
-        skullsCount += Number(Card.getCurrent('c_skulls'));
-    }
+    let skullsCount = Die.countSkulls() + Card.getSkullValue();
     bga.trace(`Skulls count: ${skullsCount}`);
     return skullsCount;
 }
@@ -142,4 +139,29 @@ function getGlobalVariable(variableName: GlobalVariables) {
 
 function setGlobalVariable(variableName: GlobalVariables, newValue: string) {
     setProperties(Zones.Park, { [variableName]: newValue });
+}
+
+/**
+ * Check if pirate magic is invoked (same symbol >= 9)
+ */
+function checkPirateMagic(): boolean {
+    let pirateMagicInvoked = false;
+    if (getSkullsCount() >= 9) {
+        pirateMagicInvoked = true
+    }
+    else if (Card.isCurrent(PirateCard.Coin)){
+        pirateMagicInvoked = Die.countFace(DieFaces.Coin) === 8;
+    }
+    else if (Card.isCurrent(PirateCard.Diamond)){
+        pirateMagicInvoked = Die.countFace(DieFaces.Diamond) === 8;
+    }
+
+    if (pirateMagicInvoked) {
+        bga.log(_("${player_name} invoked <b>pirate magic</b>."));
+        bga.setScore(bga.getCurrentPlayerColor(), WinningScore);
+        bga.setGameProgression(100);
+        bga.endGame();
+    }
+
+    return pirateMagicInvoked;
 }

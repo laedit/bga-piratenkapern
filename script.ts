@@ -62,10 +62,12 @@ function onRollClicked() {
         deselectAll();
         logDiceResult();
         moveSkullDiceToSkullZone();
+        if (checkPirateMagic()) {
+            return;
+        }
 
         let skullDiceCount = getSkullsCount();
         // If there is 3+ skulls
-
         if (skullDiceCount === 4 && wasGoingToSkullIsland) {
             transitionToSkullIsland();
         }
@@ -90,6 +92,9 @@ function firstRoll() {
     bga.moveTo(Die.getAll(), Zones.RolledDice);
     logDiceResult();
     moveSkullDiceToSkullZone();
+    if (checkPirateMagic()) {
+        return;
+    }
 
     let skullsCount = getSkullsCount();
     // If there is 3 skulls
@@ -139,6 +144,9 @@ function normalRoll() {
         deselectAll();
         logDiceResult();
         moveSkullDiceToSkullZone();
+        if (checkPirateMagic()) {
+            return;
+        }
 
         let skullsCount = getSkullsCount();
         // If there is 3+ skulls
@@ -160,6 +168,9 @@ function skullIslandRoll() {
 
     logDiceResult();
     moveSkullDiceToSkullZone();
+    if (checkPirateMagic()) {
+        return;
+    }
 
     let skullDiceCount = selectedDice.map(dieId => bga.getElement({ id: dieId }, 'value')).filter(dieValue => dieValue === DieFaces.Skull.value).length;
     bga.trace('New skulls count :' + skullDiceCount);
@@ -313,7 +324,6 @@ function getSetScore(setCount: number): number {
         case 6: return 1000;
         case 7: return 2000;
         case 8: return 4000;
-
         default: bga.error(`This set value isn't handled '${setCount}'`);
     }
 }

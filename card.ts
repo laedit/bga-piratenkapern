@@ -26,5 +26,8 @@ const Card = {
     },
     getPirateBoatSabersAndPoints(): [number, number] {
         return [Number(this.getCurrent("c_sabers")), Number(this.getCurrent("c_points"))];
+    },
+    getSkullValue(): number {
+        return Number(Card.getCurrent('c_skulls') ?? 0);
     }
 }
