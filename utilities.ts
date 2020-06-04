@@ -1,12 +1,20 @@
-const WinningScore = 6000;
+function getWinningScore() {
+    switch (bga.getVariant(1)) {
+        case 1: return 6000;
+        case 2: return 3000;
+        case 3: return 8000;
+    }
+    bga.error(`Variant option not defined`);
+}
 
 function updateGameProgression() {
     // Get player score max
     let maxScore = Math.max(...Object.keys(bga.getPlayers()).map(color => bga.getScore(color)));
 
+    let winningScore = getWinningScore();
     // If score < winning score
-    if (maxScore < WinningScore) {
-        bga.setGameProgression(Math.round(maxScore / WinningScore * 100));
+    if (maxScore < winningScore) {
+        bga.setGameProgression(Math.round(maxScore / winningScore * 100));
     }
     // Else we are (probably?) on the last turn
     else {
@@ -158,7 +166,7 @@ function checkPirateMagic(): boolean {
 
     if (pirateMagicInvoked) {
         bga.log(_("${player_name} invoked <b>pirate magic</b>."));
-        bga.setScore(bga.getCurrentPlayerColor(), WinningScore);
+        bga.setScore(bga.getCurrentPlayerColor(), getWinningScore());
         bga.setGameProgression(100);
         bga.endGame();
     }

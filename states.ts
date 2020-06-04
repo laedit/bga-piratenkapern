@@ -123,10 +123,11 @@ function checkEndOfGame() {
     let players = Object.values(bga.getPlayers()).map(player => { return Object.assign(player, { score: bga.getScore(player.color) }) });
     let currentPlayerColor = bga.getCurrentPlayerColor();
     let currentPlayerScore = players.find(p => p.color === currentPlayerColor)!.score;
+    let winningScore = getWinningScore();
 
     if (currentPlayerColor === getGlobalVariable("c_lastTurnPlayer")) {
         bga.trace(`Player ${currentPlayerColor} last turn`);
-        if (players.every(p => p.score < WinningScore)) {
+        if (players.every(p => p.score < winningScore)) {
             setGlobalVariable("c_immediateWin", "true");
             bga.trace("Immediate win started");
         }
@@ -137,7 +138,7 @@ function checkEndOfGame() {
         }
     }
 
-    if (currentPlayerScore >= WinningScore) {
+    if (currentPlayerScore >= winningScore) {
         if (getGlobalVariable("c_immediateWin") === "true") {
             bga.trace("End game by immediate win");
             bga.setGameProgression(100);
@@ -163,7 +164,7 @@ function checkEndOfGame() {
     currentPlayerColor = players.find(player => player.no === nextPlayerNo.toString())!.color;
 
     if (currentPlayerColor === getGlobalVariable("c_lastTurnPlayer")) {
-        if (players.some(p => p.score >= WinningScore)) {
+        if (players.some(p => p.score >= winningScore)) {
             if (players.reduce((prev, current) => (prev.score > current.score) ? prev : current).color === currentPlayerColor) { // currentPlayer.Score is max scores
                 bga.trace("End game by last turn and max score");
                 bga.setGameProgression(100);
